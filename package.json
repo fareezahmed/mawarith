@@ -1,0 +1,11 @@
+{
+  "name": "mawarith",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes serve -l tcp://127.0.0.1:3333 .",
+    "dev:mcalc": "npx --yes serve -l tcp://127.0.0.1:3334 mcalc",
+    "dev:python": "python3 -m http.server 8810 --bind 127.0.0.1 --directory mcalc",
+    "sync:fareezdev": "mkdir -p ../fareezdev/public/mcalc && cp mcalc/index.html ../fareezdev/public/mcalc/index.html",
+    "deploy:s3": "bash deploy/s3-sync-fareez.sh"
+  }
+}
