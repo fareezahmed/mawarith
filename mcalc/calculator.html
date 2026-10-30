@@ -1505,15 +1505,15 @@ const defaultHeirs = () => ({
  * ESTATE ASSET & LIABILITY CATEGORIES (for itemised entry)
  * ══════════════════════════════════════════════════════════════════════ */
 const ASSET_CATEGORIES = [
-  { key: 'property', label: 'Property & Real Estate', hint: 'Home, land, investment property' },
+  { key: 'property', label: 'Property & Real Estate (current market value)', hint: 'Home, land, investment property' },
   { key: 'cash', label: 'Cash & Bank Accounts', hint: 'Savings, term deposits, cash on hand' },
   { key: 'shares', label: 'Shares & Investments', hint: 'Listed shares, managed funds', info: ['Shares and stocks listed on any exchange, and shares in private companies the deceased did not run (a business they ran goes under Business assets).', 'Managed funds, mutual funds, unit trusts, index funds and exchange-traded funds (ETFs).', 'Bonds, ṣukūk and other fixed-income holdings; employee share schemes; investment accounts, including Islamic investment accounts.', 'Cryptocurrency and digital assets.', 'Use the market value on the date of death. Dividends or profits declared before death but not yet paid also belong to the estate.'] },
   { key: 'superannuation', label: 'Superannuation / Pension', hint: 'Include only if it forms part of the estate; exclude assets passing under a binding nomination', info: ['Money held in a retirement or pension scheme in the deceased\'s name. It is called superannuation in Australia, a 401(k) or IRA in the United States, a workplace or personal pension in the United Kingdom, EPF or KWSP in Malaysia, CPF in Singapore, and a provident fund or NSSF in many other countries.', 'Include it here only if the fund pays the money to the estate. Many funds pay a death benefit directly to a nominated person under their own rules; money that never reaches the estate cannot be divided by the calculator.', 'Most scholars hold that a death benefit received by the estate is inheritance and must be divided by the Qurʾānic shares, whatever name the fund puts on the nomination. Please confirm with a qualified scholar for your situation.'] },
-  { key: 'jewellery', label: 'Jewellery & Precious Metals', hint: 'Gold, silver, gemstones', info: ['Gold and silver jewellery, bullion bars and coins, gemstones and valuable watches that the deceased owned.', 'Use the current resale value, not the purchase price.', 'Only what belonged to the deceased is part of the estate. Jewellery that was given to the wife as mahr or as a gift is her own property and is not divided.', 'Items on loan or held for someone else are not included.'] },
+  { key: 'jewellery', label: 'Jewellery & Precious Metals (current market value)', hint: 'Gold, silver, gemstones', info: ['Gold and silver jewellery, bullion bars and coins, gemstones and valuable watches that the deceased owned.', 'Use the current resale value, not the purchase price.', 'Only what belonged to the deceased is part of the estate. Jewellery that was given to the wife as mahr or as a gift is her own property and is not divided.', 'Items on loan or held for someone else are not included.'] },
   { key: 'business', label: 'Business & Partnership Assets', hint: 'Ownership interests, goodwill, stock, and other business assets', info: ['A business the deceased owned or ran: a sole-trader business, a share in a partnership, or shares in a family or private company.', 'Count the deceased\'s share only. If the business was owned with partners, only the deceased\'s portion enters the estate.', 'Include the value of goodwill, stock and inventory, equipment, tools and vehicles used by the business, and money in business bank accounts.', 'Debts owed by the business are entered separately under Business loans, so the estate shows the net position.', 'Farm land and livestock can be entered here or under Property, whichever is simpler; do not count them twice.'] },
-  { key: 'vehicles', label: 'Vehicles', hint: 'Cars, motorcycles, trucks, lorries, boats' },
+  { key: 'vehicles', label: 'Vehicles (current market value)', hint: 'Cars, motorcycles, trucks, lorries, boats' },
   { key: 'receivables', label: 'Money Owed to the Deceased', hint: 'Loans given to others, unpaid wages, and other receivables' },
-  { key: 'other', label: 'Other Assets', hint: 'Anything else of value belonging to the deceased' }
+  { key: 'other', label: 'Other Assets (current market value)', hint: 'Anything else of value belonging to the deceased' }
 ];
 const DEBT_CATEGORIES = [
   { key: 'funeral', label: 'Funeral & Burial Expenses', hint: 'Reasonable funeral and burial expenses settled before distribution' },
@@ -3600,6 +3600,33 @@ function buildReportPdf(d) {
 
   const heading = t => { doc.setFont('times', 'bold'); doc.setFontSize(14); doc.setTextColor(11, 74, 63); doc.text(t, M, y); y += 6; doc.setDrawColor(199, 154, 62); doc.setLineWidth(1.2); doc.line(M, y, M + 42, y); y += 18; };
   const para = (t, size, col) => { doc.setFont('helvetica', 'normal'); doc.setFontSize(size || 10); doc.setTextColor.apply(doc, col || [70, 83, 79]); const lines = doc.splitTextToSize(t, W - 2 * M); doc.text(lines, M, y); y += lines.length * ((size || 10) + 3) + 6; };
+  // A paragraph laid out word by word so some words can be links. Links carry a full
+  // almawarith.com URL, and the URL is also printed, so a saved or printed copy still works.
+  const linkPara = (parts, size) => {
+    const fs = size || 10, lh = fs + 3, maxW = W - 2 * M;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(fs);
+    let x = M;
+    parts.forEach(p => {
+      pdfSafe(p.text).split(/(\s+)/).filter(Boolean).forEach(tok => {
+        const w = doc.getTextWidth(tok);
+        if (/^\s+$/.test(tok)) {
+          if (x === M) return;
+          if (p.url) { doc.setDrawColor(11, 74, 63); doc.setLineWidth(0.5); doc.line(x, y + 1.5, x + w, y + 1.5); }
+          x += w; return;
+        }
+        if (x + w > M + maxW && x > M) { x = M; y += lh; }
+        doc.setTextColor.apply(doc, p.url ? [11, 74, 63] : [70, 83, 79]);
+        doc.text(tok, x, y);
+        if (p.url) {
+          doc.link(x, y - fs * 0.8, w, fs * 1.05, { url: p.url });
+          doc.setDrawColor(11, 74, 63); doc.setLineWidth(0.5); doc.line(x, y + 1.5, x + w, y + 1.5);
+        }
+        x += w;
+      });
+    });
+    y += lh + 6;
+  };
+  const SCHOLAR_REVIEW_URL = 'https://almawarith.com/scholar-review.html';
   const pageGuard = need => { if (y + (need || 60) > H - 60) { doc.addPage(); y = 60; } };
 
   heading('The deceased & surviving heirs');
@@ -3655,7 +3682,13 @@ function buildReportPdf(d) {
   heading('Educational Report Disclaimer');
   para('This is an educational report, not a binding ruling.');
   para('The binding shares depend on which heirs are actually alive at the time of death. Some cases may require qualified scholarly judgement.');
-  para('Confirm the final distribution with a qualified scholar or Al-Mawārīth / inheritance expert before the estate is distributed.');
+  linkPara([
+    { text: 'Confirm the final distribution with a qualified scholar or ' },
+    { text: 'Al-Mawārīth / inheritance expert', url: SCHOLAR_REVIEW_URL },
+    { text: ' before the estate is distributed. Request a review at ' },
+    { text: SCHOLAR_REVIEW_URL, url: SCHOLAR_REVIEW_URL },
+    { text: '.' }
+  ]);
 
   // Optional support section, with the same Stripe links as the Donate step
   pageGuard(300);
@@ -3792,10 +3825,45 @@ function App() {
       if (q.get('mode') === 'quick') { setMode('quick'); const st = Number(q.get('step')); if (st >= 1 && st <= 5) setStep(st); }
     } catch (e) { /* malformed query: ignore */ }
   }, []);
-  const goResults = () => { setMode('quick'); setStep(4); };
+  // No school chosen but the schools differ on this family: ask before showing results.
+  const [schoolAsk, setSchoolAsk] = useState(null); // the navigation to run once the reader chooses
+  const [schoolSkipped, setSchoolSkipped] = useState(false);
+  const schoolDiffs = (result && result.schoolDifferences) || [];
+  const needsSchool = !rules.madhhab && !schoolSkipped && schoolDiffs.length > 0;
+  const viaSchoolCheck = go => () => { if (needsSchool) setSchoolAsk(() => go); else go(); };
+  const goResults = viaSchoolCheck(() => { setMode('quick'); setStep(4); });
+  useEffect(() => {
+    if (!schoolAsk) return;
+    const onKey = e => { if (e.key === "Escape") setSchoolAsk(null); };
+    document.addEventListener("keydown", onKey);
+    const first = document.querySelector('.school-ask .wiz-choice-opt');
+    first && first.focus();
+    return () => document.removeEventListener("keydown", onKey);
+  }, [schoolAsk]);
+  const runSchoolAsk = () => { const go = schoolAsk; setSchoolAsk(null); go && go(); };
+  const schoolDialog = schoolAsk && React.createElement("div", { className: "info-overlay", onClick: () => setSchoolAsk(null) },
+    React.createElement("div", { className: "info-dialog school-ask", role: "dialog", "aria-modal": "true", "aria-labelledby": "school-ask-title", onClick: e => e.stopPropagation() },
+      React.createElement("div", { className: "info-dialog-head" },
+        React.createElement("h3", { id: "school-ask-title", className: "info-dialog-title" }, "Which school of fiqh should apply?"),
+        React.createElement("button", { type: "button", className: "info-close", "aria-label": "Close", onClick: () => setSchoolAsk(null) }, "\u00D7")),
+      React.createElement("p", { className: "text-sm", style: { color: 'var(--ink-soft)', marginBottom: '.5rem' } }, "No school of fiqh is selected, and the four Sunni schools differ on part of this case:"),
+      React.createElement("ul", { className: "info-list", style: { marginBottom: '.85rem' } }, schoolDiffs.map((sd, i) => React.createElement("li", { key: i },
+        withHonorifics(sd.title.charAt(0).toUpperCase() + sd.title.slice(1) + ". Currently: " + (sd.applied ? sd.appliedLabel : sd.otherLabel) + ".")))),
+      React.createElement("p", { className: "text-sm", style: { color: 'var(--ink)', marginBottom: '.6rem' } }, "Choose the school the family follows. You can change it later in the header."),
+      React.createElement("div", { className: "wiz-choice", role: "group", "aria-label": "School of fiqh" },
+        MADHHABS.map(m => {
+          const other = calcSunni(heirs, deceasedSex, rulesForMadhhab(m.id)).schoolDifferences || [];
+          const desc = other.map(sd => sd.applied ? sd.appliedLabel : sd.otherLabel).join('; ');
+          return React.createElement("button", { key: m.id, type: "button", className: "wiz-choice-opt", onClick: () => { chooseMadhhab(m.id); runSchoolAsk(); } },
+            React.createElement("div", { className: "wiz-choice-t" }, m.name),
+            desc && React.createElement("div", { className: "wiz-choice-d" }, withHonorifics(desc + ".")));
+        }),
+        React.createElement("button", { type: "button", className: "wiz-choice-opt", onClick: () => { setSchoolSkipped(true); runSchoolAsk(); } },
+          React.createElement("div", { className: "wiz-choice-t" }, "Continue without choosing"),
+          React.createElement("div", { className: "wiz-choice-d" }, "Keep the rulings listed above. The results will show where the schools differ.")))));
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen pattern-bg"
-  }, /*#__PURE__*/React.createElement("header", {
+  }, schoolDialog, /*#__PURE__*/React.createElement("header", {
     className: "border-b",
     style: {
       borderColor: 'var(--border)'
@@ -3864,7 +3932,7 @@ function App() {
     return /*#__PURE__*/React.createElement(React.Fragment, {
       key: n
     }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setStep(n),
+      onClick: n >= 4 && step < 4 ? viaSchoolCheck(() => setStep(n)) : () => setStep(n),
       className: "flex items-center gap-2 text-xs",
       style: {
         color: active ? 'var(--teal-deep)' : done ? 'var(--gold)' : 'var(--ink-soft)'
@@ -4319,7 +4387,7 @@ function App() {
     onClick: () => setStep(2)
   }, "\u2190 Back"), /*#__PURE__*/React.createElement("button", {
     className: "btn-primary",
-    onClick: () => setStep(4)
+    onClick: viaSchoolCheck(() => setStep(4))
   }, "Calculate shares \u2192"))), mode === 'quick' && step === 4 && /*#__PURE__*/React.createElement("div", {
     className: "space-y-6 fade-up results-root"
   }, /*#__PURE__*/React.createElement("div", {
