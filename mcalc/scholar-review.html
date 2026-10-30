@@ -248,7 +248,7 @@ var COUNTRY_CCY = { AU: 'AUD', NZ: 'AUD', US: 'USD', GB: 'GBP', IE: 'EUR', CA: '
 /* Reviewer roster: replace these sample profiles with your real scholars/experts. */
 var EXPERTS = [
   { id: 'hanafi', name: 'Ḥanafī Farāʾiḍ Scholar', type: 'Scholar', initials: 'ح', specialty: 'Ḥanafī inheritance & general rulings', bio: 'Trained in the Ḥanafī school with a focus on farāʾiḍ. Advises on standard divisions, exclusions, and the common estate cases.', langs: ['English', 'Urdu'], format: 'Online', avail: 'Saturdays · 2:30 PM AEST' },
-  { id: 'shafii', name: 'Shāfiʿī Muftī', type: 'Scholar', initials: 'ش', specialty: 'Complex & contested cases · fatwā', bio: 'Issues considered opinions on unusual combinations, ʿawl / radd disputes, and kalāla (no ascendant or descendant) cases.', langs: ['English', 'Arabic'], format: 'Online', avail: 'Wednesdays · 8:00 PM AEST' },
+  { id: 'shafii', name: 'Shāfiʿī Muftī', type: 'Scholar', initials: 'ش', specialty: 'Complex & contested cases · fatwā', bio: 'Issues considered opinions on unusual combinations, ʿawl / radd disputes, and kalālah (no ascendant or descendant) cases.', langs: ['English', 'Arabic'], format: 'Online', avail: 'Wednesdays · 8:00 PM AEST' },
   { id: 'crossmadhhab', name: 'Cross-Madhhab Scholar', type: 'Scholar', initials: 'ع', specialty: 'Where the schools differ (e.g. grandfather with siblings)', bio: 'Advises when a considered position is needed across the Mālikī, Ḥanbalī and other schools.', langs: ['English', 'Arabic'], format: 'Online & in-person', avail: 'Sundays · 11:00 AM AEST' },
   { id: 'mawarith', name: 'Al-Mawārīth Specialist', type: 'Inheritance Expert', initials: 'M', specialty: 'Estate division & precise share calculation', bio: 'Verifies the computed shares against your exact family and prepares the signed, authorised report.', langs: ['English'], format: 'Online', avail: 'Tuesdays & Thursdays · 7:00 PM AEST' },
   { id: 'estate', name: 'Islamic Estate-Planning Expert', type: 'Inheritance Expert', initials: 'E', specialty: 'Wills, waqf & cross-border assets', bio: 'Aligns your distribution with a compliant Islamic will, and handles overseas property and family waqf.', langs: ['English'], format: 'Online & in-person', avail: 'Mondays · 6:00 PM AEST' },
@@ -345,7 +345,7 @@ var EXPERTS = [
       summary.push('Distribution status: ' + document.getElementById('distribution').value);
     }
     if (special) summary.push('Special circumstances: ' + special);
-    if (attachCalc) summary.push('', 'Calculation from the Al-Mawarith calculator:', storedCalc.summary);
+    if (attachCalc) summary.push('', 'Calculation from the Al-Mawārīth calculator:', storedCalc.summary);
     var payload = {
       name: name, email: email, phone: form.phone.value,
       details: form.details.value, package: pkg.value, expert: reviewer,
