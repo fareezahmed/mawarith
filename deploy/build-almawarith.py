@@ -7,9 +7,11 @@ Production differs from mcalc/ only in build settings:
   - <base href="/"> and root-relative links instead of /mcalc/
   - almawarith.com absolute URLs instead of fareez.dev/mcalc
   - the production Umami website id
-  - ?v=<first 8 hex of MD5> on styles.css, site.js and motion.js (cache busting)
+  - ?v=<first 8 hex of MD5> on styles.css, site.js and motion.js, and on the logo and
+    icon images (cache busting: Cloudflare caches images for hours and a purge is not
+    always at hand, so a changed image gets a new URL)
 On 2026-10-31 this reproduced every page in s3://almawarith-prod byte for byte from
-the 22 Oct mcalc/ originals.
+the 22 Oct mcalc/ originals; image versioning was added on 2026-11-04.
 
 Deploy (changed pages only; HTML is text/html; charset=utf-8, max-age=300):
     aws s3 cp deploy/almawarith.com/<page>.html s3://almawarith-prod/<page>.html \
@@ -24,6 +26,8 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'deploy', 'almawa
 DEV_UMAMI = '95d7e13f-5749-4edc-a724-df39b41f5246'
 PROD_UMAMI = '7da06aac-86a3-4434-83f3-4d15c82fa795'
 ASSETS = ('styles.css', 'site.js', 'motion.js')
+IMAGES = ('logo-horizontal.png', 'logo-mark.png', 'og-image.png', 'apple-touch-icon.png',
+          'favicon.ico', 'favicon-32.png', 'favicon-16.png')
 SKIP = {'services.html'}  # empty placeholder that production does not serve
 
 
@@ -40,11 +44,15 @@ def transform(s, versions):
     s = s.replace('https://fareez.dev/mcalc/', 'https://almawarith.com/')
     s = s.replace('href="/mcalc/', 'href="/')
     s = s.replace('fareez.dev/mcalc', 'almawarith.com')
+    for f in IMAGES:
+        v = versions[f]
+        s = s.replace(f'src="{f}"', f'src="{f}?v={v}"').replace(f'href="{f}"', f'href="{f}?v={v}"')
+        s = s.replace(f'content="https://almawarith.com/{f}"', f'content="https://almawarith.com/{f}?v={v}"')
     return s
 
 
 def main():
-    versions = {f: version(f) for f in ASSETS}
+    versions = {f: version(f) for f in ASSETS + IMAGES}
     os.makedirs(OUT, exist_ok=True)
     for name in sorted(os.listdir(SRC)):
         if not name.endswith('.html') or name in SKIP:
