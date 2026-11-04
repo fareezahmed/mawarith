@@ -2543,6 +2543,7 @@ const HADITH_GRADES = [
   [/Sunan al-Tirmidhī 1078/, "Ḥasan according to al-Tirmidhī; ṣaḥīḥ according to al-Albānī."],
   [/Sunan Abī Dāwūd 2870/, "Ḥasan ṣaḥīḥ according to al-Tirmidhī; ṣaḥīḥ according to al-Albānī."],
   [/Ṣaḥīḥ al-Bukhārī 6742/, "Ṣaḥīḥ: recorded by al-Bukhārī (Kitāb al-Farāʾiḍ, bāb mīrāth al-akhawāt maʿa al-banāt ʿaṣabah). A second narration, through Huzayl, of the same ruling as Ṣaḥīḥ al-Bukhārī 6736."],
+  [/al-Sunan al-Kubrā, Kitāb al-Farāʾiḍ, bāb al-mushtarakah/, "A Companion-era report (athar). Recorded by al-Ḥākim in al-Mustadrak and by al-Bayhaqī in al-Sunan al-Kubrā from Zayd ibn Thābit (رضي الله عنه); al-Ḥākim graded it ṣaḥīḥ, but Ibn Ḥajar (al-Talkhīṣ al-Ḥabīr, Kitāb al-Farāʾiḍ) notes a weak narrator in its chain, Abū Umayyah ibn Yaʿlā al-Thaqafī. That ʿUmar (رضي الله عنه) shared the third is established by other routes, notably al-Dāraquṭnī’s report of his words “that case stood on what we judged then, and this one on what we judge now”."],
   [/Sunan Ibn Mājah 2719/, "Weak chain (ḍaʿīf) in the view of most ḥadīth critics; al-Ḥākim authenticated it. Its meaning is supported by the Companions' practice."],
 ];
 const hadithGrade = src => { const m = HADITH_GRADES.find(g => g[0].test(src || "")); return m ? m[1] : null; };
