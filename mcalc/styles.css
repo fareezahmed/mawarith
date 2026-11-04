@@ -98,6 +98,12 @@ h3 { font-size: 1.5rem; }
 .nav-link:hover { color: var(--teal-deep); background: rgba(11,74,63,0.05); }
 .nav-link[aria-current="page"] { color: var(--teal-deep); font-weight: 600; background: rgba(11,74,63,0.07); }
 .nav-cta { margin-left: 0.5rem; }
+.nav-group { position: relative; display: flex; align-items: center; }
+.nav-group-link::after { content: ""; display: inline-block; width: 0.42em; height: 0.42em; margin-left: 0.4em; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-0.15em) rotate(45deg); opacity: 0.7; }
+.nav-sub { position: absolute; top: calc(100% + 0.3rem); left: 0; min-width: 11rem; padding: 0.35rem; background: var(--parchment); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 40px -18px rgba(11,42,36,0.45); opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 0.15s, transform 0.15s; }
+.nav-sub .nav-link { display: block; }
+.nav-group:hover .nav-sub, .nav-group:focus-within .nav-sub { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.nav-group::before { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 0.4rem; }
 .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.4rem; }
 .nav-toggle svg { width: 26px; height: 26px; stroke: var(--teal-deep); }
 @media (max-width: 860px) {
@@ -106,6 +112,9 @@ h3 { font-size: 1.5rem; }
   .nav-links.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
   .nav-link { padding: 0.7rem 0.6rem; }
   .nav-cta { margin: 0.4rem 0 0; }
+  .nav-group { display: contents; }
+  .nav-group-link::after { display: none; }
+  .nav-sub { position: static; opacity: 1; transform: none; pointer-events: auto; min-width: 0; padding: 0 0 0 1.1rem; background: none; border: 0; box-shadow: none; }
 }
 
 /* Hero */
