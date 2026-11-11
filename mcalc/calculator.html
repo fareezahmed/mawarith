@@ -879,6 +879,25 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     color: var(--teal-deep);
     border-bottom-color: var(--gold);
   }
+  /* Phones: the five heir tabs are wider than the screen. Let them wrap onto a second line
+     instead of widening the whole page (which slid it sideways and cut off the labels). */
+  @media (max-width: 640px) {
+    .tab-nav { flex-wrap: wrap; row-gap: 0.25rem; }
+    .tab-btn { padding: 0.6rem 0.75rem; white-space: nowrap; }
+  }
+
+  /* Results table on phones: five columns don't fit, and the name column collapsed until the
+     fractions sat on top of the heir names. Stack each row: swatch, name and +/- on the first
+     line; fraction and share on the second. */
+  @media (max-width: 640px) {
+    .rr-head { display: none !important; }
+    .rr { grid-template-columns: 12px auto 1fr 24px !important; column-gap: 0.75rem !important; row-gap: 0.3rem !important; }
+    .rr > .rr-sw { grid-column: 1; grid-row: 1; }
+    .rr > .rr-name { grid-column: 2 / 4; grid-row: 1; }
+    .rr > .rr-btn { grid-column: 4; grid-row: 1; }
+    .rr > .rr-frac { grid-column: 2; grid-row: 2; text-align: left; }
+    .rr > .rr-pct { grid-column: 3; grid-row: 2; }
+  }
 
   /* Why panel */
   .why-panel {
@@ -1124,6 +1143,14 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   .wiz-mode { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
   .wiz-mode button { font-size: .74rem; padding: .35rem .85rem; background: transparent; border: none; cursor: pointer; color: var(--ink-soft); }
   .wiz-mode button.active { background: var(--teal-deep); color: #fff; }
+  /* One line under the header on the first screen: which mode to pick. */
+  .mode-hint { margin-top: 1rem; font-size: .88rem; line-height: 1.55; color: var(--ink-soft); }
+  .mode-hint strong { color: var(--teal-deep); font-weight: 600; }
+  /* "Welcome back" notice when saved answers are restored. */
+  .resume-note { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: 1rem; padding: .7rem .9rem; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; background: var(--parchment-dark); font-size: .88rem; color: var(--ink); }
+  .resume-note p { margin: 0; flex: 1 1 16rem; }
+  .resume-note button { font-size: .82rem; padding: .3rem .75rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--teal-deep); cursor: pointer; }
+  .resume-note button:hover { border-color: var(--teal); }
   .wiz-summary-row { display: flex; justify-content: space-between; gap: 1rem; font-size: .88rem; padding: .3rem 0; border-bottom: 1px solid var(--border); }
   .wiz-summary-row span:last-child { font-variant-numeric: tabular-nums; color: var(--teal-deep); }
 
@@ -2791,17 +2818,17 @@ function WasiyyahResultRow({
       borderColor: 'var(--border)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "grid items-center gap-4 px-2 py-4 bg-amber-50/20",
+    className: "rr grid items-center gap-4 px-2 py-4 bg-amber-50/20",
     style: {
       gridTemplateColumns: 'auto 1fr auto auto auto'
     }
   }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
+    className: "legend-swatch rr-sw",
     style: {
       background: PALETTE_BEQUEST
     }
   }), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
+    className: "min-w-0 rr-name"
   }, /*#__PURE__*/React.createElement("div", {
     className: "font-medium text-sm md:text-base"
   }, "Waṣiyyah: optional bequest"), /*#__PURE__*/React.createElement("div", {
@@ -2810,19 +2837,20 @@ function WasiyyahResultRow({
       color: 'var(--ink-soft)'
     }
   }, "Disbursed before the Qur\u02BE\u0101nic shares, from the net estate after funeral expenses and debts.")), /*#__PURE__*/React.createElement("div", {
-    className: "text-right"
+    className: "text-right rr-frac"
   }, /*#__PURE__*/React.createElement("div", {
     className: "frac-num",
     style: {
       color: 'var(--ink-soft)'
     }
   }, "\u2013")), /*#__PURE__*/React.createElement("div", {
-    className: "text-right"
+    className: "text-right rr-pct"
   }, /*#__PURE__*/React.createElement("div", {
     className: "frac-pct"
   }, bequestPct, "% net"), /*#__PURE__*/React.createElement("div", {
     className: "frac-dollar"
   }, fmtMoney(bequestAmount))), /*#__PURE__*/React.createElement("span", {
+    className: "rr-btn",
     style: {
       width: 24,
       flexShrink: 0
@@ -2846,18 +2874,18 @@ function ResultRow({
       borderColor: 'var(--border)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "grid items-center gap-4 px-2 py-4 cursor-pointer hover:bg-amber-50/30 transition-colors",
+    className: "rr grid items-center gap-4 px-2 py-4 cursor-pointer hover:bg-amber-50/30 transition-colors",
     style: {
       gridTemplateColumns: 'auto 1fr auto auto auto'
     },
     onClick: () => setOpen(!open)
   }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
+    className: "legend-swatch rr-sw",
     style: {
       background: PALETTE[idx % PALETTE.length]
     }
   }), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
+    className: "min-w-0 rr-name"
   }, /*#__PURE__*/React.createElement("div", {
     className: "font-medium text-sm md:text-base"
   }, slice.name), /*#__PURE__*/React.createElement("div", {
@@ -2866,11 +2894,11 @@ function ResultRow({
       color: 'var(--ink-soft)'
     }
   }, slice.relation)), /*#__PURE__*/React.createElement("div", {
-    className: "text-right"
+    className: "text-right rr-frac"
   }, /*#__PURE__*/React.createElement("div", {
     className: "frac-num"
   }, fStr(slice.fraction))), /*#__PURE__*/React.createElement("div", {
-    className: "text-right"
+    className: "text-right rr-pct"
   }, /*#__PURE__*/React.createElement("div", {
     className: "frac-pct"
   }, /*#__PURE__*/React.createElement("div", null, fPct(slice.fraction), "% Qur\u02BE\u0101nic"), bequestFrac > 1e-9 && /*#__PURE__*/React.createElement("div", {
@@ -2881,7 +2909,7 @@ function ResultRow({
   }, pctOfNetWhole.toFixed(pctOfNetWhole >= 10 ? 1 : 2), "% of estate")), estateAfterBequests > 0 && /*#__PURE__*/React.createElement("div", {
     className: "frac-dollar"
   }, fmtMoney(dollarAmount))), /*#__PURE__*/React.createElement("button", {
-    className: "btn-ghost text-xs",
+    className: "btn-ghost text-xs rr-btn",
     style: {
       minWidth: 24
     }
@@ -3729,25 +3757,56 @@ function buildReportPdf(d) {
   doc.save('mawarith-inheritance-report.pdf');
 }
 
-function App() {
-  const [deceasedSex, setDeceasedSex] = useState('male'); // 'male' | 'female'
-  const [currency, setCurrency] = useState('AUD');
-  ACTIVE_CURRENCY = currency; // drives fmtMoney() across the whole render tree
-  useEffect(() => { let alive = true; detectCurrencyCode().then(code => { if (alive && code) setCurrency(code); }); return () => { alive = false; }; }, []);
-  const [assets, setAssets] = useState(() => zeroMap(ASSET_CATEGORIES));
-  const [liabilities, setLiabilities] = useState(() => zeroMap(DEBT_CATEGORIES));
-  const [bequestPct, setBequestPct] = useState(0); // 0..33
+/* Saved progress. Every answer is kept in this browser's local storage so a visitor who
+ * leaves the calculator (another page, a closed tab, a phone call) comes back to the same
+ * screen. Nothing is sent anywhere. Kept for 30 days from the last change; "Start over"
+ * clears it. */
+const PROGRESS_KEY = 'mawarith:progress';
+const PROGRESS_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+function loadProgress() {
+  try {
+    const raw = window.localStorage.getItem(PROGRESS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    const age = p && p.savedAt ? Date.now() - Date.parse(p.savedAt) : Infinity;
+    if (!p || p.v !== 1 || !(age < PROGRESS_MAX_AGE_MS)) { window.localStorage.removeItem(PROGRESS_KEY); return null; }
+    return p;
+  } catch (e) { return null; }
+}
+const objOr = (v, fallback) => (v && typeof v === 'object' && !Array.isArray(v)) ? { ...fallback, ...v } : fallback;
+// True when the saved state is further along than a fresh start (so a "welcome back" note makes sense).
+const progressIsMeaningful = p => {
+  if (!p) return false;
+  const h = p.heirs || {};
+  const anyHeir = Object.keys(h).some(k => h[k] === true || (typeof h[k] === 'number' && h[k] > 0));
+  return p.mode === 'quick' ? (p.step > 1 || anyHeir) : (p.wizardId && p.wizardId !== 'intro');
+};
 
-  const [heirs, setHeirs] = useState(defaultHeirs());
-  const [activeTab, setActiveTab] = useState('immediate');
-  const [step, setStep] = useState(1); // 1=Setup, 2=Heirs, 3=Bequests, 4=Results, 5=Donate
-  const [mode, setMode] = useState('guided'); // 'guided' | 'quick'
-  const [wizardId, setWizardId] = useState('intro');
+function App() {
+  const [saved] = useState(loadProgress);
+  const [resumeNote, setResumeNote] = useState(() => progressIsMeaningful(saved) ? saved.savedAt : null);
+  const [deceasedSex, setDeceasedSex] = useState(() => saved && saved.deceasedSex === 'female' ? 'female' : 'male'); // 'male' | 'female'
+  const [currency, setCurrency] = useState(() => saved && typeof saved.currency === 'string' ? saved.currency : 'AUD');
+  ACTIVE_CURRENCY = currency; // drives fmtMoney() across the whole render tree
+  // Guess the currency from location, unless the visitor already has one from a saved session.
+  useEffect(() => { if (saved && saved.currency) return; let alive = true; detectCurrencyCode().then(code => { if (alive && code) setCurrency(code); }); return () => { alive = false; }; }, []);
+  const [assets, setAssets] = useState(() => objOr(saved && saved.assets, zeroMap(ASSET_CATEGORIES)));
+  const [liabilities, setLiabilities] = useState(() => objOr(saved && saved.liabilities, zeroMap(DEBT_CATEGORIES)));
+  const [bequestPct, setBequestPct] = useState(() => saved && saved.bequestPct >= 0 && saved.bequestPct <= 33 ? saved.bequestPct : 0); // 0..33
+
+  const [heirs, setHeirs] = useState(() => objOr(saved && saved.heirs, defaultHeirs()));
+  const [activeTab, setActiveTab] = useState(() => saved && typeof saved.activeTab === 'string' ? saved.activeTab : 'immediate');
+  // 1=Setup, 2=Heirs, 3=Bequests, 4=Results, 5=Donate (a saved Donate step reopens on Results)
+  const [step, setStep] = useState(() => saved && saved.step >= 1 && saved.step <= 5 ? Math.min(4, saved.step) : 1);
+  const [mode, setMode] = useState(() => saved && saved.mode === 'quick' ? 'quick' : 'guided'); // 'guided' | 'quick'
+  const [wizardId, setWizardId] = useState(() => saved && WIZARD_SCREENS.some(sc => sc.id === saved.wizardId) ? saved.wizardId : 'intro');
   // School-specific rulings the user can switch on where the schools differ (see calcSunni).
   const [rules, setRules] = useState(() => {
-    let saved = null;
-    try { saved = window.localStorage.getItem('mawarith:madhhab'); } catch (e) { /* storage unavailable */ }
-    return rulesForMadhhab(MADHHABS.some(m => m.id === saved) ? saved : null);
+    let savedSchool = null;
+    try { savedSchool = window.localStorage.getItem('mawarith:madhhab'); } catch (e) { /* storage unavailable */ }
+    const base = rulesForMadhhab(MADHHABS.some(m => m.id === savedSchool) ? savedSchool : null);
+    // Keep any ruling the visitor switched by hand, as long as it belongs to the same school.
+    return saved && saved.rules && saved.rules.madhhab === base.madhhab ? objOr(saved.rules, base) : base;
   });
   const chooseMadhhab = id => {
     setRules(rulesForMadhhab(id));
@@ -3796,7 +3855,19 @@ function App() {
   }, [caseSummary, result]);
 
   const heirCount = (heirs.husband ? 1 : 0) + heirs.wives + heirs.sons + heirs.daughters + heirs.sonsSons + heirs.sonsDaughters + (heirs.father ? 1 : 0) + (heirs.mother ? 1 : 0) + (heirs.paternalGrandfather ? 1 : 0) + (heirs.paternalGrandmother ? 1 : 0) + (heirs.maternalGrandmother ? 1 : 0) + heirs.fullBrothers + heirs.fullSisters + heirs.paternalBrothers + heirs.paternalSisters + heirs.maternalBrothers + heirs.maternalSisters + heirs.fullBrothersSons + heirs.paternalBrothersSons + heirs.paternalUncles + heirs.paternalHalfUncles + heirs.paternalUncleSons + heirs.paternalHalfUncleSons;
+  // Save progress on every change (see loadProgress).
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+        v: 1, savedAt: new Date().toISOString(),
+        deceasedSex, currency, assets, liabilities, bequestPct, heirs, activeTab, step, mode, wizardId, rules
+      }));
+    } catch (e) { /* private mode or storage full: the calculator still works, it just won't resume */ }
+  }, [deceasedSex, currency, assets, liabilities, bequestPct, heirs, activeTab, step, mode, wizardId, rules]);
   const resetAll = () => {
+    try { window.localStorage.removeItem(PROGRESS_KEY); window.localStorage.removeItem('mawarith:lastCalculation'); } catch (e) { /* storage unavailable */ }
+    setResumeNote(null);
+    setActiveTab('immediate');
     setHeirs(defaultHeirs());
     setAssets(zeroMap(ASSET_CATEGORIES));
     setLiabilities(zeroMap(DEBT_CATEGORIES));
@@ -3926,7 +3997,14 @@ function App() {
     onClick: resetAll,
     className: "btn-start-over",
     "aria-label": "Start over and clear all entries"
-  }, "\u21BB Start over"))), mode === 'quick' && /*#__PURE__*/React.createElement("div", {
+  }, "\u21BB Start over"))), resumeNote && React.createElement("div", { className: "resume-note", role: "status" },
+    React.createElement("p", null, "Welcome back. Your answers from ", new Date(resumeNote).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }), " are still here, saved only in this browser."),
+    React.createElement("button", { type: "button", onClick: () => setResumeNote(null) }, "Continue"),
+    React.createElement("button", { type: "button", onClick: resetAll }, "Start over")),
+  !resumeNote && ((mode === 'guided' && wizardId === 'intro') || (mode === 'quick' && step === 1)) && React.createElement("p", { className: "mode-hint" },
+    React.createElement("strong", null, "Guided"), " asks one question at a time and explains each rule as you go. ",
+    React.createElement("strong", null, "Quick"), " is a short form for those who already know which relatives survive."),
+  mode === 'quick' && /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2 mt-6"
   }, ['Setup', 'Heirs', 'Bequest', 'Results', 'Donate'].map((label, i) => {
     const n = i + 1;
@@ -4478,7 +4556,7 @@ function App() {
       color: 'var(--ink-soft)'
     }
   }, "Hover over a slice to see the recipient. Click a row to view the ruling and its evidence.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "px-2 py-3 border-b text-xs font-medium uppercase tracking-wider grid gap-4",
+    className: "rr-head px-2 py-3 border-b text-xs font-medium uppercase tracking-wider grid gap-4",
     style: {
       borderColor: 'var(--border)',
       color: 'var(--ink-soft)',
