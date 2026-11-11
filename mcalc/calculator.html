@@ -1101,6 +1101,9 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   .wiz-progress-label { font-size: 0.72rem; color: var(--ink-soft); margin-top: 0.45rem; letter-spacing: .03em; }
   .wiz-teach p { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.75; margin-bottom: 0.65rem; }
   .wiz-teach p:last-child { margin-bottom: 0; }
+  .wiz-teach ol.wiz-steps { list-style: decimal; padding-left: 1.4rem; margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--ink); line-height: 1.7; }
+  .wiz-teach ol.wiz-steps li { padding-left: 0.2rem; margin-bottom: 0.2rem; }
+  .wiz-teach ol.wiz-steps li::marker { color: var(--gold); font-weight: 600; }
   /* Evidence block under each guided step: verse or hadith, translation, source */
   .wiz-evidence { margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: 0.85rem; }
   .wiz-ev-h { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--gold-text); margin-bottom: 0.55rem; }
@@ -1135,7 +1138,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   .wiz-choice-d { font-size: 0.85rem; color: var(--ink-soft); line-height: 1.55; margin-top: 0.15rem; }
   .wiz-live { margin-top: 1.4rem; border-top: 1px dashed var(--border); padding-top: .95rem; }
   .wiz-live-h { font-size: .7rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-soft); margin-bottom: .55rem; }
-  .wiz-live-row { display: flex; justify-content: space-between; gap: 1rem; font-size: .88rem; padding: .22rem 0; color: var(--ink); }
+  .wiz-live-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; font-size: .88rem; padding: .22rem 0; color: var(--ink); }
+  .wiz-live-why { flex-basis: 100%; margin-top: -.1rem; font-size: .78rem; line-height: 1.5; color: var(--ink-soft); }
   .wiz-live-frac { font-variant-numeric: tabular-nums; color: var(--teal-deep); font-weight: 600; white-space: nowrap; }
   .wiz-live-note { margin-top: .55rem; font-size: .76rem; color: var(--gold-text); }
   .wiz-live-tag { display: inline-block; margin-left: .45rem; padding: 0 .4rem; font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; color: var(--gold-text); border: 1px solid currentColor; border-radius: 999px; vertical-align: middle; }
@@ -1733,6 +1737,10 @@ function calcSunni(h, deceasedSex, rules) {
       fraction: wifeShare,
       count: h.wives,
       perPerson: each,
+      note: (hasAnyDescendant
+        ? 'The wife\'s share is 1/8, not 1/4, because the deceased left a child or a child of a son.'
+        : 'The wife\'s share is 1/4. It would drop to 1/8 if the deceased left a child or a child of a son.')
+        + (h.wives > 1 ? ` The ${h.wives} wives do not each get ${fStr(wifeShare)}: they share the one ${fStr(wifeShare)} equally, ${fStr(each)} each.` : ''),
       reason: hasAnyDescendant ? 'Sūrat al-Nisāʾ 4:12: "And for them [wives] is one fourth if you leave no child. But if you leave a child, then for them is an eighth."' : 'Sūrat al-Nisāʾ 4:12: "And for them [wives] is one fourth if you leave no child."',
       category: 'spouse'
     });
@@ -1743,6 +1751,9 @@ function calcSunni(h, deceasedSex, rules) {
       name: 'Husband',
       relation: 'Spouse',
       fraction: husbandShare,
+      note: hasAnyDescendant
+        ? 'The husband\'s share is 1/4, not 1/2, because the deceased left a child or a child of a son (from him or from another husband).'
+        : 'The husband\'s share is 1/2. It would drop to 1/4 if the deceased left a child or a child of a son.',
       reason: hasAnyDescendant ? 'Sūrat al-Nisāʾ 4:12: "But if they [wives] leave a child, for you is one fourth of what they leave."' : 'Sūrat al-Nisāʾ 4:12: "For you is half of what your wives leave if they have no child."',
       category: 'spouse'
     });
@@ -3074,12 +3085,18 @@ const rulesForMadhhab = id => ({ madhhab: id || null, pgmWithFather: !(id === 'h
 
 const WIZARD_SCREENS = [
   { id: 'intro', sec: 'Welcome', kind: 'info', title: 'How Al-Mawārīth works', teach: [
-    'Al-Mawārīth is the Qurʾānic system for dividing what a person leaves behind. Before any heir receives a share, three things are settled from the estate: funeral costs, then debts, then any bequest (waṣiyyah), which may be at most one-third.',
-    'Whatever remains is divided in two passes. First the fixed Qurʾānic shares (farāʾiḍ) go to the named heirs: spouse, parents, daughters, and so on. Then any remainder passes to the nearest male-line relatives (ʿaṣabah).',
+    'Al-Mawārīth is the Qurʾānic system for dividing what a person leaves behind. Before any heir receives a share, three things are taken from the estate, in this order:',
+    { list: ['Funeral and burial costs.', 'Debts the deceased owed.', 'Any bequest (waṣiyyah), which may be at most one-third of what is left.'] },
+    'Whatever remains is divided in two passes. First the fixed Qurʾānic shares (farāʾiḍ) go to the named heirs: spouse, parents, daughters, and so on. Then any remainder goes to the residuary heirs (ʿaṣabah), the closest relatives who take what is left. Most are men related through men, such as a son, the father or a brother, but women can be residuary heirs too: a daughter inherits alongside a son, and a sister alongside a brother or alongside the daughters.',
     'This walkthrough asks one question at a time and shows the effect of each answer, so you can see exactly how the division forms.' ] },
   { id: 'sex', sec: 'The deceased', kind: 'sex', title: 'Was the deceased a man or a woman?' },
-  { id: 'spouse', sec: 'Spouse', kind: 'spouse', title: 'Did the deceased leave a spouse?', teach: [
-    'A husband receives 1/2, or 1/4 if there are children or grandchildren through a son. A wife (or wives together) receives 1/4, or 1/8 with such descendants.',
+  { id: 'spouse', sec: 'Spouse', kind: 'spouse', title: 'Did the deceased leave a spouse?', teach: (h, r, sex) => sex === 'female' ? [
+    'Her husband takes 1/2 if she left no child and no child of a son.',
+    'He takes 1/4 if she left any child (a son or a daughter) or any child of a son. This applies whether the child is from him or from another husband.',
+    'The spouse is never excluded and never takes the leftover residue.' ] : [
+    'His wife takes 1/4 if he left no child and no child of a son.',
+    'She takes 1/8 if he left any child (a son or a daughter) or any child of a son, whether from her or from another wife.',
+    'With two, three or four wives, each does not get her own 1/4 or 1/8: they share that one portion equally.',
     'The spouse is never excluded and never takes the leftover residue.' ] , evidence: [{"ar": "وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ", "en": "And for you is half of what your wives leave if they have no child; but if they have a child, for you is one fourth of what they leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"ar": "وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم", "en": "And for them is one fourth of what you leave if you have no child; but if you have a child, for them is an eighth of what you leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"note": "A child (walad) here includes a grandchild through a son, by the consensus of the scholars; a daughter's child does not reduce the spouse's share.", "src": "Ijmāʿ: Ibn al-Mundhir, al-Ijmāʿ; Ibn Qudāmah, al-Mughnī"}] },
   { id: 'sons', sec: 'Children', kind: 'count', key: 'sons', max: 20, title: 'How many sons survive?', teach: ["A son is a strong residuary heir (ʿaṣabah) who takes the remaining estate after the prescribed shares have been distributed. When sons and daughters inherit together, they share the residue so that each son receives twice the share of each daughter (ratio 2:1), “for the male, the share of two females.”", {"ar": "يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ", "en": "Allah instructs you concerning your children: for the male, what is equal to the share of two females.", "src": "Sūrat al-Nisāʾ 4:11"}, "The presence of a son also affects other heirs: he reduces the spouse's prescribed share and excludes the deceased's siblings and grandchildren through a son (sons and daughters of a son) from inheriting.", "Note: Grandchildren through a daughter are not among the prescribed heirs or residuary heirs."], evidence: [{"ar": "أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لِأَوْلَى رَجُلٍ ذَكَرٍ", "en": "Give the prescribed shares to those entitled to them; whatever remains goes to the nearest male relative.", "note": "The son is the nearest male relative, so after the fixed shares the remainder is his.", "src": "Ṣaḥīḥ al-Bukhārī 6732; Ṣaḥīḥ Muslim 1615"}] },
   { id: 'daughters', sec: 'Children', kind: 'count', key: 'daughters', max: 20, title: 'How many daughters survive?', teach: ["If there is no surviving son, one daughter receives 1/2, while two or more daughters collectively receive 2/3.", {"ar": "فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ", "en": "If there are only daughters, two or more, for them is two thirds of the estate; and if there is one, for her is half.", "src": "Sūrat al-Nisāʾ 4:11"}, "If a son is present, the daughters become residuary heirs (ʿaṣabah) with their brothers and share the residue so that each son receives twice the share of each daughter (ratio 2:1), “for the male, the share of two females.”", {"ar": "لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ", "en": "For the male, what is equal to the share of two females.", "src": "Sūrat al-Nisāʾ 4:11"}], evidence: [{"ar": "أَعْطِ ابْنَتَيْ سَعْدٍ الثُّلُثَيْنِ، وَأَعْطِ أُمَّهُمَا الثُّمُنَ، وَمَا بَقِيَ فَهُوَ لَكَ", "en": "Give the two daughters of Saʿd (رضي الله عنه) two thirds, give their mother an eighth, and what remains is yours.", "note": "The ruling of the Prophet ﷺ for the two daughters of Saʿd ibn al-Rabīʿ (رضي الله عنه): two daughters already take the two-thirds share, which is how the verse has been applied since.", "src": "Sunan al-Tirmidhī 2092; Sunan Abī Dāwūd 2891; Sunan Ibn Mājah 2720"}] },
@@ -3244,7 +3261,7 @@ function ScholarServices(props) {
     ['khuntha', 'An heir of indeterminate sex (khunthā)'], ['nonmuslim', 'A non-Muslim heir'],
     ['simultaneous', 'Simultaneous deaths (e.g. an accident)'], ['estrangement', 'Apostasy, or an heir who caused the death'],
     ['adopted', 'An adopted or step-child'], ['overseas', 'Overseas assets / multiple jurisdictions'],
-    ['business', 'Business, trust or company interests'], ['maradmawt', 'Large gifts made in final illness (maraḍ al-mawt)'],
+    ['iddah', 'A wife divorced during her waiting period (ʿiddah)'], ['business', 'Business, trust or company interests'], ['maradmawt', 'Large gifts made in final illness (maraḍ al-mawt)'],
     ['other', 'Another situation not covered here']
   ];
   const selectedList = specialCases.filter(c => special[c[0]]).map(c => c[1]).join('; ');
@@ -3516,7 +3533,8 @@ function GuidedWizard(props) {
     liveShares.length
       ? liveShares.map((s, i) => h("div", { key: i, className: "wiz-live-row" },
           h("span", null, s.name, s.residuary && h("span", { className: "wiz-live-tag" }, "provisional")),
-          h("span", { className: "wiz-live-frac" }, `${fStr(s.fraction)} · ${fPct(s.fraction)}%`)))
+          h("span", { className: "wiz-live-frac" }, `${fStr(s.fraction)} · ${fPct(s.fraction)}%`),
+          s.note && h("span", { className: "wiz-live-why" }, s.note)))
       : (residueHidden ? null : h("div", { className: "text-xs", style: { color: "var(--ink-soft)" } }, "No qualifying heirs entered yet.")),
     showRemainder && h("div", { className: "wiz-live-row", style: { opacity: 0.75 } },
       h("span", null, "Not yet assigned"),
@@ -3545,7 +3563,7 @@ function GuidedWizard(props) {
     review = h("div", { className: "mt-4" }, rows);
   }
 
-  const teachList = typeof screen.teach === "function" ? screen.teach(heirs, rules) : (screen.teach || []);
+  const teachList = typeof screen.teach === "function" ? screen.teach(heirs, rules, deceasedSex) : (screen.teach || []);
   const evidenceList = typeof screen.evidence === "function" ? screen.evidence(heirs, rules) : (screen.evidence || []);
   const denom = Math.max(1, visible.length - 1);
   return h("div", { ref: cardRef, className: "paper paper-warm rounded-lg p-6 md:p-10 fade-up wiz-card" },
@@ -3553,7 +3571,7 @@ function GuidedWizard(props) {
       h("div", { className: "wiz-progress-bar" }, h("div", { className: "wiz-progress-fill", style: { width: `${Math.round(pos / denom * 100)}%` } })),
       h("div", { className: "wiz-progress-label" }, `Step ${pos + 1} of ${visible.length} · ${screen.sec}`)),
     h("div", { className: "section-h", style: { marginTop: ".8rem" } }, screen.title),
-    h("div", { className: "wiz-teach" }, teachList.map((p, i) => typeof p === "string" ? h("p", { key: i }, explained(p)) : h("div", { className: "wiz-ev wiz-ev-inline", key: i }, p.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, p.ar), p.en && h("p", { className: "wiz-ev-en" }, withHonorifics(p.en)), h("div", { className: "wiz-ev-src" }, srcLine(p.src)))), screen.basis && h("div", { className: "wiz-basis" }, screen.basis), evidenceList.length > 0 && h("details", { className: "wiz-evidence", open: evOpen, onToggle: e => setEvOpen(e.target.open) }, h("summary", { className: "wiz-ev-h" }, h("span", null, "Evidence"), h("span", { className: "wiz-ev-toggle", "aria-hidden": "true" }, evOpen ? "Hide" : "Show")), evidenceList.map((ev, i) => { const grade = ev.grade || hadithGrade(ev.src); return h("div", { className: "wiz-ev", key: i }, ev.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, ev.ar), ev.en && h("p", { className: "wiz-ev-en" }, withHonorifics(ev.en)), ev.note && h("p", { className: "wiz-ev-note" }, explained(ev.note)), h("div", { className: "wiz-ev-src" }, srcLine(ev.src)), grade && h("div", { className: "wiz-ev-grade" }, h("span", { className: "wiz-ev-grade-l" }, "Grading"), " ", withHonorifics(grade))); }))),
+    h("div", { className: "wiz-teach" }, teachList.map((p, i) => typeof p === "string" ? h("p", { key: i }, explained(p)) : p.list ? h("ol", { key: i, className: "wiz-steps" }, p.list.map((li, j) => h("li", { key: j }, explained(li)))) : h("div", { className: "wiz-ev wiz-ev-inline", key: i }, p.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, p.ar), p.en && h("p", { className: "wiz-ev-en" }, withHonorifics(p.en)), h("div", { className: "wiz-ev-src" }, srcLine(p.src)))), screen.basis && h("div", { className: "wiz-basis" }, screen.basis), evidenceList.length > 0 && h("details", { className: "wiz-evidence", open: evOpen, onToggle: e => setEvOpen(e.target.open) }, h("summary", { className: "wiz-ev-h" }, h("span", null, "Evidence"), h("span", { className: "wiz-ev-toggle", "aria-hidden": "true" }, evOpen ? "Hide" : "Show")), evidenceList.map((ev, i) => { const grade = ev.grade || hadithGrade(ev.src); return h("div", { className: "wiz-ev", key: i }, ev.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, ev.ar), ev.en && h("p", { className: "wiz-ev-en" }, withHonorifics(ev.en)), ev.note && h("p", { className: "wiz-ev-note" }, explained(ev.note)), h("div", { className: "wiz-ev-src" }, srcLine(ev.src)), grade && h("div", { className: "wiz-ev-grade" }, h("span", { className: "wiz-ev-grade-l" }, "Grading"), " ", withHonorifics(grade))); }))),
     input && h("div", { className: "wiz-input" }, input),
     live,
     review,
