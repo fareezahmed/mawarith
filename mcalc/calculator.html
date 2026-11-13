@@ -558,7 +558,13 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .header-actions .btn-start-over {
       flex: 1;
       min-width: 0;
+      white-space: nowrap;
     }
+    /* Phones: the Guided / Quick switch gets its own full-width row. Sharing a row with
+       Donate and Start over squeezed "Start over" onto three lines at 360px. */
+    .header-actions .wiz-mode { flex: 1 1 100%; }
+    .header-actions .wiz-mode button { flex: 1; padding: .6rem .85rem; font-size: .86rem; }
+    .header-actions .school-pick { flex: 1 1 100%; }
   }
   .btn-donate {
     display: inline-flex;
@@ -897,6 +903,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .rr > .rr-btn { grid-column: 4; grid-row: 1; }
     .rr > .rr-frac { grid-column: 2; grid-row: 2; text-align: left; }
     .rr > .rr-pct { grid-column: 3; grid-row: 2; }
+    /* Narrow phones (360px and under): the 240px chart plus its padding was wider than the
+       results card, which stretched the list under it and cut off the right edge of every
+       row. Let the chart shrink to fit. */
+    .pie-svg { max-width: 100%; height: auto; }
   }
 
   /* Why panel */
@@ -1150,6 +1160,37 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   /* One line under the header on the first screen: which mode to pick. */
   .mode-hint { margin-top: 1rem; font-size: .88rem; line-height: 1.55; color: var(--ink-soft); }
   .mode-hint strong { color: var(--teal-deep); font-weight: 600; }
+  .mode-hint-link { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--teal); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
+  /* First-visit chooser between Guided and Quick */
+  .mode-ask-overlay { animation: modeAskFade .2s ease both; }
+  .mode-ask { background: var(--parchment); border-radius: 18px; box-shadow: 0 30px 70px -24px rgba(11,42,36,0.6); width: 100%; max-width: 44rem; max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem); overflow: auto; padding: 1.4rem 1.5rem 1.3rem; animation: modeAskRise .26s ease both; }
+  .mode-ask-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .mode-ask-title { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; line-height: 1.1; color: var(--teal-deep); margin: 0; }
+  .mode-ask-sub { margin: .35rem 0 0; font-size: .9rem; color: var(--ink-soft); }
+  .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .mode-card { display: flex; flex-direction: column; gap: .5rem; text-align: left; padding: 1.05rem 1.1rem 1rem; background: #fff; border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; font: inherit; color: var(--ink); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+  .mode-card:hover, .mode-card:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(199,154,62,0.28), 0 14px 30px -18px rgba(11,42,36,0.35); outline: none; transform: translateY(-1px); }
+  .mode-card-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .3rem .6rem; }
+  .mode-card-tag { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-text); }
+  .mode-card-time { font-size: .72rem; color: var(--ink-soft); white-space: nowrap; }
+  .mode-card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 600; line-height: 1; color: var(--teal-deep); }
+  .mode-card-text { font-size: .9rem; line-height: 1.5; }
+  .mode-card-points { display: flex; flex-direction: column; gap: .2rem; font-size: .8rem; line-height: 1.45; color: var(--ink-soft); }
+  .mode-card-points > span { position: relative; padding-left: .95rem; }
+  .mode-card-points > span::before { content: ""; position: absolute; left: .1rem; top: .5em; width: .35rem; height: .35rem; background: var(--gold); transform: rotate(45deg); }
+  .mode-card-cta { margin-top: auto; padding-top: .45rem; font-size: .88rem; font-weight: 600; color: var(--teal-deep); }
+  .mode-ask-foot { margin: .95rem 0 0; font-size: .78rem; line-height: 1.5; color: var(--ink-soft); text-align: center; }
+  @keyframes modeAskFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modeAskRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 600px) {
+    .mode-ask { padding: 1.1rem 1rem 1rem; }
+    .mode-ask-title { font-size: 1.45rem; }
+    .mode-cards { grid-template-columns: 1fr; gap: .65rem; }
+    .mode-card { padding: .85rem .95rem .8rem; gap: .35rem; }
+    .mode-card-name { font-size: 1.4rem; }
+    .mode-card-points > span:nth-child(n+3) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mode-ask-overlay, .mode-ask { animation: none; } .mode-card { transition: none; } }
   /* "Welcome back" notice when saved answers are restored. */
   .resume-note { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: 1rem; padding: .7rem .9rem; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; background: var(--parchment-dark); font-size: .88rem; color: var(--ink); }
   .resume-note p { margin: 0; flex: 1 1 16rem; }
@@ -1201,6 +1242,61 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   .estate-note-list li { margin-bottom: .15rem; }
   .currency-select { max-width: 360px; margin-bottom: 1.4rem; }
   .currency-select select { width: 100%; }
+  .currency-hint { margin: .45rem 0 0; font-size: .74rem; line-height: 1.5; color: var(--ink-soft); }
+  /* Several entries per category, each with its own currency */
+  .money-row-multi { align-items: flex-start; flex-wrap: wrap; padding: .6rem 0; }
+  .money-row-multi .money-row-label { flex: 2 1 9rem; min-width: 0; padding-top: .3rem; }
+  /* Grows, so when a narrow column wraps the entries under the label they fill the row. */
+  .money-entries { flex: 1 1 14.5rem; min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
+  .money-entry { display: flex; flex-direction: column; gap: .25rem; }
+  .money-entry + .money-entry { padding-top: .45rem; border-top: 1px dashed var(--border); }
+  .me-line { display: flex; gap: .35rem; align-items: stretch; }
+  input[type="number"].money-field.me-amount { flex: 1 1 auto; min-width: 0; width: 100%; padding-left: .75rem; }
+  input[type="text"].me-label { width: 100%; font-size: .8rem; padding: .4rem .65rem; }
+  .ccy-pick { position: relative; flex: none; display: inline-flex; align-items: center; gap: .3rem; padding: 0 .55rem; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; font-size: .8rem; font-weight: 600; letter-spacing: .02em; color: var(--teal-deep); cursor: pointer; }
+  .ccy-pick::after { content: "\25BE"; font-size: .7rem; color: var(--ink-soft); }
+  .ccy-pick select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: 0; }
+  .ccy-pick:focus-within { border-color: var(--gold); box-shadow: var(--ring); }
+  .me-remove { flex: none; width: 2.1rem; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--ink-soft); font-size: 1.15rem; line-height: 1; cursor: pointer; }
+  .me-remove:hover, .me-remove:focus-visible { border-color: var(--rust); color: var(--rust); outline: none; }
+  .me-conv { font-size: .72rem; color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
+  .me-conv-warn, .fx-warn { color: var(--rust); }
+  .me-foot { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+  .me-add { background: none; border: 0; padding: .1rem 0; font-size: .74rem; font-weight: 600; color: var(--teal); cursor: pointer; }
+  .me-add:hover, .me-add:focus-visible { text-decoration: underline; outline: none; }
+  .me-sub { font-size: .74rem; color: var(--ink-soft); }
+  .me-sub strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .fx-panel { margin-top: 1.1rem; padding: .85rem 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--parchment); }
+  .fx-h { font-weight: 700; color: var(--teal-deep); font-size: .82rem; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .45rem; }
+  .fx-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem 1rem; padding: .35rem 0; border-bottom: 1px solid var(--border); }
+  .fx-eq { display: inline-flex; align-items: center; gap: .45rem; font-size: .86rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  input[type="number"].fx-input { width: 7.2rem; padding: .4rem .55rem; font-size: .86rem; }
+  .fx-src { font-size: .74rem; color: var(--ink-soft); display: inline-flex; align-items: center; gap: .6rem; }
+  .fx-link { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--teal); text-decoration: underline; cursor: pointer; }
+  .fx-note { margin: .55rem 0 0; font-size: .74rem; line-height: 1.5; color: var(--ink-soft); }
+  .fx-note a { color: var(--teal); text-decoration: underline; }
+  @media (max-width: 767px) {
+    /* iPhones zoom the whole page when a field with text under 16px is focused. */
+    input[type="text"], input[type="number"], input[type="email"], input[type="tel"], select, textarea,
+    input[type="number"].money-field, input[type="text"].me-label, input[type="number"].fx-input, .school-pick select { font-size: 16px; }
+    /* Comfortable tap targets and readable small print */
+    .quick-step-dot { width: 2rem; height: 2rem; font-size: .85rem; }
+    .quick-step-label.is-active { display: inline; font-size: .85rem; }
+    .info-btn { position: relative; width: 1.35rem; height: 1.35rem; font-size: .85rem; }
+    .info-btn::after { content: ""; position: absolute; inset: -.6rem; }
+    .me-add { padding: .45rem 0; font-size: .82rem; }
+    .me-remove { width: 2.6rem; }
+    .ccy-pick { padding: 0 .7rem; font-size: .86rem; }
+    .mrl-main { font-size: .95rem; }
+    .mrl-hint { font-size: .76rem; }
+    .me-conv, .me-sub, .fx-src, .fx-note, .currency-hint { font-size: .78rem; }
+    .elig-badge { font-size: .7rem; }
+  }
+  @media (max-width: 640px) {
+    /* Phones: the name of the section sits above its entries, which take the full width. */
+    .money-entries { flex-basis: 100%; }
+    .money-row-multi .money-row-label { flex-basis: 100%; padding-top: 0; }
+  }
   .reviewer-select { max-width: 560px; }
   .reviewer-select select { width: 100%; }
 
@@ -1673,6 +1769,70 @@ async function detectCurrencyCode() {
   try { const reg = new Intl.Locale(navigator.language).maximize().region; if (reg && COUNTRY_CCY[reg] && CURRENCY_MAP[COUNTRY_CCY[reg]]) return COUNTRY_CCY[reg]; } catch (e2) {}
   return null;
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * ITEMISED ESTATE ENTRIES AND EXCHANGE RATES
+ * Each asset and debt category holds a list of entries. An entry has an optional
+ * description, an amount and its own currency (ccy '' = the main currency). Amounts in
+ * another currency are converted to the main currency with today's live rate, which the
+ * visitor can overwrite (for example with the rate on the date of death).
+ * ══════════════════════════════════════════════════════════════════════ */
+let ENTRY_SEQ = 0;
+const newEntry = (amount, ccy, label) => ({ id: 'e' + Date.now().toString(36) + '-' + (ENTRY_SEQ++), label: label || '', amount: Math.max(0, Number(amount) || 0), ccy: ccy || '' });
+const emptyItems = cats => cats.reduce((o, c) => { o[c.key] = [newEntry(0)]; return o; }, {});
+/* Restore saved entries. Saves made before entries existed kept one number per category. */
+function itemsFromSaved(cats, savedItems, savedTotals) {
+  const ok = savedItems && typeof savedItems === 'object' && !Array.isArray(savedItems);
+  return cats.reduce((o, c) => {
+    const list = ok && Array.isArray(savedItems[c.key]) ? savedItems[c.key] : null;
+    const clean = list ? list.filter(e => e && typeof e === 'object').slice(0, 30).map(e =>
+      newEntry(e.amount, typeof e.ccy === 'string' && CURRENCY_MAP[e.ccy] ? e.ccy : '', typeof e.label === 'string' ? e.label.slice(0, 60) : '')) : [];
+    o[c.key] = clean.length ? clean : [newEntry(savedTotals && typeof savedTotals === 'object' ? savedTotals[c.key] : 0)];
+    return o;
+  }, {});
+}
+/* Live rates: one table of "units of each currency per 1 US dollar", so the request says
+ * nothing about which currencies or amounts the visitor entered. Kept for 12 hours. */
+const FX_KEY = 'mawarith:fx';
+const FX_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+const fxUsable = t => !!(t && t.rates && typeof t.rates === 'object' && t.rates.USD > 0 && typeof t.date === 'string');
+function loadFxCache() {
+  try {
+    const t = JSON.parse(window.localStorage.getItem(FX_KEY) || 'null');
+    return fxUsable(t) && Date.now() - Date.parse(t.fetchedAt) < FX_MAX_AGE_MS ? t : null;
+  } catch (e) { return null; }
+}
+async function fetchJson(url, ms) {
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), ms);
+  try { const r = await fetch(url, { signal: ctrl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
+  finally { clearTimeout(to); }
+}
+async function fetchFxRates() {
+  let table = null;
+  try {
+    const d = await fetchJson('https://open.er-api.com/v6/latest/USD', 7000);
+    if (d && d.result === 'success' && d.rates) table = { rates: d.rates, date: new Date(d.time_last_update_utc || Date.now()).toISOString().slice(0, 10), source: 'er' };
+  } catch (e) { /* try the second source */ }
+  if (!fxUsable(table)) {
+    const d = await fetchJson('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json', 7000);
+    const rates = {}; Object.keys((d && d.usd) || {}).forEach(k => { rates[k.toUpperCase()] = d.usd[k]; });
+    table = { rates, date: String((d && d.date) || '').slice(0, 10), source: 'ca' };
+  }
+  if (!fxUsable(table)) throw new Error('No exchange rates available');
+  table.fetchedAt = new Date().toISOString();
+  try { window.localStorage.setItem(FX_KEY, JSON.stringify(table)); } catch (e) { /* storage unavailable */ }
+  return table;
+}
+/* How many units of `base` one unit of `from` is worth; null when no rate is known. */
+function fxRate(fx, overrides, from, base) {
+  if (!from || from === base) return 1;
+  const own = overrides && Number(overrides[from + '>' + base]);
+  if (own > 0) return own;
+  const r = fx && fx.rates;
+  return r && r[from] > 0 && r[base] > 0 ? r[base] / r[from] : null;
+}
+const fmtRate = r => String(Number(Number(r).toPrecision(5)));
+const fmtRateDate = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? iso : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); };
 
 /* ════════════════════════════════════════════════════════════════════════
  * SUNNI FARĀʾIḌ ENGINE
@@ -2798,6 +2958,7 @@ function PieChart({
     width: size,
     height: size,
     viewBox: `0 0 ${size} ${size}`,
+    className: "pie-svg",
     style: {
       pointerEvents: 'auto'
     },
@@ -3215,7 +3376,7 @@ function WaqfInfo() {
       h('span', null, 'A waqf created during your lifetime removes that asset from the estate before inheritance. A waqf made by will (waqf bi-l-waṣiyyah) is treated as a bequest and counts within the one-third limit. The exact conditions, especially for a family waqf, should be settled with a qualified scholar.')));
 }
 
-function buildCaseSummary(sex, H, assetsTotal, debtsTotal, net, bequestPct, result, rules) {
+function buildCaseSummary(sex, H, assetsTotal, debtsTotal, net, bequestPct, result, rules, fxNote) {
   const lines = [];
   lines.push('Deceased: ' + (sex === 'male' ? 'Male' : 'Female'));
   if (rules && rules.madhhab) lines.push('School of fiqh selected: ' + madhhabName(rules.madhhab));
@@ -3233,6 +3394,7 @@ function buildCaseSummary(sex, H, assetsTotal, debtsTotal, net, bequestPct, resu
   addH('Sons of full uncles', H.paternalUncleSons); addH('Sons of paternal half-uncles', H.paternalHalfUncleSons);
   lines.push('Heirs: ' + (bits.join(', ') || 'none entered'));
   lines.push('Estate (' + ACTIVE_CURRENCY + '): assets ' + fmtMoney(assetsTotal) + ', debts ' + fmtMoney(debtsTotal) + ', net ' + fmtMoney(net) + ', bequest ' + bequestPct + '%');
+  if (fxNote) lines.push('Exchange rates used: ' + fxNote);
   if (result && result.shares && result.shares.length) lines.push('Computed shares: ' + result.shares.map(s => s.name + ' ' + fStr(s.fraction)).join(', '));
   if (result && result.schoolDifferences && result.schoolDifferences.length) lines.push('Where the schools differ: ' + result.schoolDifferences.map(sd => sd.title + ' (' + (sd.applied ? sd.appliedLabel : sd.otherLabel) + ')').join('; '));
   return lines.join('\n');
@@ -3385,8 +3547,9 @@ function EligibilityPanel(props) {
 
 function EstateEntry(props) {
   const h = React.createElement;
-  const { assets, setAssetVal, liabilities, setLiabilityVal, estateValue, totalDebts, grossEstate, currency, setCurrency } = props;
-  const sym = currencySymbol(currency);
+  const { assetItems, setAssetItems, liabilityItems, setLiabilityItems, estateValue, totalDebts, grossEstate, currency, setCurrency,
+    fx, fxStatus, retryFx, rateOverrides, setRateOverrides, foreignCcys, missingRates } = props;
+  const rateOf = ccy => fxRate(fx, rateOverrides, ccy || currency, currency);
   // "More about this" dialog for the categories that carry an info list.
   const [info, setInfo] = useState(null);
   const closeBtn = useRef(null);
@@ -3403,24 +3566,74 @@ function EstateEntry(props) {
         h("h3", { id: "info-dialog-title", className: "info-dialog-title" }, info.label),
         h("button", { type: "button", ref: closeBtn, className: "info-close", "aria-label": "Close", onClick: () => setInfo(null) }, "\u00D7")),
       h("ul", { className: "info-list" }, info.info.map((t, i) => h("li", { key: i }, explained(t))))));
-  const col = (title, cats, valObj, setter) => h("div", { className: "estate-col" },
+  const currencyOptions = () => CURRENCY_GROUPS.map(g => h("optgroup", { key: g, label: g },
+    CURRENCIES.filter(c => c.group === g).map(c => h("option", { key: c.code, value: c.code }, c.code + " \u00B7 " + c.name))));
+  // Compact currency picker: shows only the code; the full list opens from the hidden select on top.
+  const ccyPick = (value, onChange, label) => h("label", { className: "ccy-pick" },
+    h("span", { "aria-hidden": "true" }, value),
+    h("select", { value, onChange: e => onChange(e.target.value), "aria-label": label }, currencyOptions()));
+  const entryRow = (c, e, i, list, setItems) => {
+    const ccy = e.ccy || currency;
+    const rate = rateOf(ccy);
+    const multi = list.length > 1;
+    const upd = patch => setItems(m => ({ ...m, [c.key]: m[c.key].map(x => x.id === e.id ? { ...x, ...patch } : x) }));
+    return h("div", { key: e.id, className: "money-entry" },
+      multi && h("input", { type: "text", className: "me-label", value: e.label, maxLength: 60, placeholder: "Description (optional)", "aria-label": c.label + ", entry " + (i + 1) + " description", onChange: ev => upd({ label: ev.target.value }) }),
+      h("div", { className: "me-line" },
+        ccyPick(ccy, v => upd({ ccy: v === currency ? "" : v }), c.label + (multi ? ", entry " + (i + 1) : "") + " currency"),
+        h("input", { type: "number", min: "0", step: "1000", inputMode: "decimal", value: e.amount || "", onChange: ev => upd({ amount: Math.max(0, Number(ev.target.value) || 0) }), className: "money-field me-amount", placeholder: "0", "aria-label": c.label + (multi ? ", entry " + (i + 1) + " amount" : "") }),
+        multi && h("button", { type: "button", className: "me-remove", "aria-label": "Remove " + c.label + " entry " + (i + 1), onClick: () => setItems(m => ({ ...m, [c.key]: m[c.key].filter(x => x.id !== e.id) })) }, "\u00D7")),
+      ccy !== currency && e.amount > 0 && h("div", { className: "me-conv" + (rate ? "" : " me-conv-warn") },
+        rate ? "\u2248 " + fmtMoney(e.amount * rate) : "Not counted yet: needs an exchange rate"));
+  };
+  const col = (title, cats, items, setItems) => h("div", { className: "estate-col" },
     h("div", { className: "field-label mb-2", style: { color: "var(--teal-deep)" } }, title),
-    cats.map(c => h("div", { key: c.key, className: "money-row" },
-      h("div", { className: "money-row-label" },
-        h("div", { className: "mrl-main" }, c.label, c.info && h("button", { type: "button", className: "info-btn", "aria-label": "More about " + c.label, "aria-haspopup": "dialog", onClick: () => setInfo(c) }, "i")),
-        h("div", { className: "mrl-hint" }, withHonorifics(c.hint))),
-      h("div", { className: "money-row-input" },
-        h("span", { className: "mri-dollar" }, sym),
-        h("input", { type: "number", min: "0", step: "1000", value: valObj[c.key] || "", onChange: e => setter(c.key, Number(e.target.value) || 0), className: "money-field mri-field", placeholder: "0", "aria-label": c.label })))));
+    cats.map(c => {
+      const list = items[c.key] || [];
+      const subtotal = list.reduce((sum, e) => sum + (Number(e.amount) || 0) * (rateOf(e.ccy) || 0), 0);
+      return h("div", { key: c.key, className: "money-row money-row-multi" },
+        h("div", { className: "money-row-label" },
+          h("div", { className: "mrl-main" }, c.label, c.info && h("button", { type: "button", className: "info-btn", "aria-label": "More about " + c.label, "aria-haspopup": "dialog", onClick: () => setInfo(c) }, "i")),
+          h("div", { className: "mrl-hint" }, withHonorifics(c.hint))),
+        h("div", { className: "money-entries" },
+          list.map((e, i) => entryRow(c, e, i, list, setItems)),
+          (list.length > 1 || list.some(e => e.amount > 0)) && h("div", { className: "me-foot" },
+            h("button", { type: "button", className: "me-add", "aria-label": "Add another entry under " + c.label, onClick: () => setItems(m => ({ ...m, [c.key]: [...(m[c.key] || []), newEntry(0)] })) }, "+ Add another"),
+            list.length > 1 && h("span", { className: "me-sub" }, "Subtotal ", h("strong", null, fmtMoney(subtotal))))));
+    }));
+  // Rates for every other currency in use: the live rate, or the visitor's own.
+  const rateKey = ccy => ccy + ">" + currency;
+  const setOwnRate = (ccy, v) => setRateOverrides(o => { const n = { ...o }; if (v > 0) n[rateKey(ccy)] = v; else delete n[rateKey(ccy)]; return n; });
+  const ratesPanel = foreignCcys.length > 0 && h("div", { className: "fx-panel" },
+    h("div", { className: "fx-h" }, "Exchange rates"),
+    fxStatus === "loading" && h("p", { className: "fx-note" }, "Fetching today\u2019s rates\u2026"),
+    fxStatus === "error" && !fx && h("p", { className: "fx-note fx-warn" }, "Today\u2019s rates could not be fetched. Type each rate below, or ",
+      h("button", { type: "button", className: "fx-link", onClick: retryFx }, "try again"), "."),
+    foreignCcys.map(ccy => {
+      const own = Number(rateOverrides[rateKey(ccy)]) > 0;
+      const live = fxRate(fx, null, ccy, currency);
+      const rate = rateOf(ccy);
+      return h("div", { key: ccy, className: "fx-row" },
+        h("label", { className: "fx-eq" }, "1 " + ccy + " =",
+          h("input", { type: "number", min: "0", step: "any", inputMode: "decimal", className: "fx-input", value: rate ? fmtRate(rate) : "", placeholder: "rate", "aria-label": "Exchange rate: one " + ccy + " in " + currency,
+            onChange: ev => setOwnRate(ccy, Number(ev.target.value) || 0) }),
+          currency),
+        h("span", { className: "fx-src" + (rate ? "" : " fx-warn") },
+          own ? "Your rate" : live ? "Live rate, " + fmtRateDate(fx.date) : "Rate needed",
+          own && live && h("button", { type: "button", className: "fx-link", onClick: () => setOwnRate(ccy, 0) }, "Use live rate")));
+    }),
+    h("p", { className: "fx-note" }, "Live rates are today\u2019s market rates and change daily. Type over a rate to use your own, for example the rate on the date of death.",
+      fx && fx.source === "er" && h(React.Fragment, null, " ", h("a", { href: "https://www.exchangerate-api.com", target: "_blank", rel: "noopener noreferrer" }, "Rates By Exchange Rate API"), ".")));
   return h("div", null,
     h("div", { className: "currency-select" },
-      h("div", { className: "field-label mb-2", style: { color: "var(--teal-deep)" } }, "Currency"),
-      h("select", { value: currency, onChange: e => setCurrency(e.target.value), "aria-label": "Estate currency" },
-        CURRENCY_GROUPS.map(g => h("optgroup", { key: g, label: g },
-          CURRENCIES.filter(c => c.group === g).map(c => h("option", { key: c.code, value: c.code }, c.code + " · " + c.name)))))),
+      h("div", { className: "field-label mb-2", style: { color: "var(--teal-deep)" } }, "Main currency"),
+      h("select", { value: currency, onChange: e => setCurrency(e.target.value), "aria-label": "Main currency for totals and shares" }, currencyOptions()),
+      h("p", { className: "currency-hint" }, "Totals and every heir\u2019s share are shown in this currency. Each amount below can be entered in its own currency. Once a section has an amount, \u201CAdd another\u201D lets it hold several entries.")),
     h("div", { className: "grid md:grid-cols-2 gap-6" },
-      col("Assets", ASSET_CATEGORIES, assets, setAssetVal),
-      col("Debts & obligations", DEBT_CATEGORIES, liabilities, setLiabilityVal)),
+      col("Assets", ASSET_CATEGORIES, assetItems, setAssetItems),
+      col("Debts & obligations", DEBT_CATEGORIES, liabilityItems, setLiabilityItems)),
+    ratesPanel,
+    missingRates.length > 0 && h("p", { className: "fx-note fx-warn", role: "status" }, "Amounts in " + missingRates.join(", ") + " are not counted in the totals until a rate is entered above."),
     h("div", { className: "estate-totals" },
       h("span", null, "Total assets: ", h("strong", null, fmtMoney(estateValue))),
       h("span", null, "Total debts: ", h("strong", null, fmtMoney(totalDebts))),
@@ -3440,7 +3653,7 @@ function EstateEntry(props) {
 function GuidedWizard(props) {
   const h = React.createElement;
   const { heirs, update, deceasedSex, setDeceasedSex, result,
-    assets, setAssetVal, liabilities, setLiabilityVal, estateValue, totalDebts,
+    estateProps, estateValue, totalDebts,
     currency, setCurrency, bequestPct, setBequestPct, grossEstate, wizardId, setWizardId, goResults, rules, setRules } = props;
 
   const visible = WIZARD_SCREENS.filter(s => !s.show || s.show(heirs, deceasedSex, rules));
@@ -3505,7 +3718,7 @@ function GuidedWizard(props) {
         onClick: () => setRules(r => ({ ...r, [screen.key]: opt.value }))
       }, h("div", { className: "wiz-choice-t" }, withHonorifics(opt.label)), h("div", { className: "wiz-choice-d" }, withHonorifics(opt.desc))))));
   } else if (screen.kind === "estate") {
-    input = h(EstateEntry, { assets, setAssetVal, liabilities, setLiabilityVal, estateValue, totalDebts, grossEstate, currency, setCurrency });
+    input = h(EstateEntry, estateProps);
   } else if (screen.kind === "bequest") {
     input = h("div", null,
       h("div", { className: "wiz-input-row" }, h("span", { className: "field-label" }, `Bequest: ${bequestPct}% of net estate`), h("input", { type: "range", min: 0, max: 33, value: bequestPct, onChange: e => setBequestPct(Number(e.target.value)), style: { flex: 1, minWidth: 180 } })),
@@ -3696,7 +3909,7 @@ function buildReportPdf(d) {
         ['Net estate', fmtMoney(d.grossEstate)],
         ['Bequest (waṣiyyah, ' + d.bequestPct + '%)', fmtMoney(d.bequestAmount)],
         ['Divided among the heirs', fmtMoney(d.estateAfterBequests)]
-      ]
+      ].concat((d.fxUsed || []).map(x => ['Exchange rate used' + (x.own ? ' (entered by you)' : x.date ? ' (live rate, ' + x.date + ')' : ''), '1 ' + x.ccy + ' = ' + fmtRate(x.rate) + ' ' + d.currency]))
     });
     y = doc.lastAutoTable.finalY + 22;
   }
@@ -3800,16 +4013,82 @@ const progressIsMeaningful = p => {
   return p.mode === 'quick' ? (p.step > 1 || anyHeir) : (p.wizardId && p.wizardId !== 'intro');
 };
 
+/* First visit: a short chooser between the two ways of working. Shown once (the choice is
+ * remembered in this browser), never over saved answers or a deep link, and reopened from
+ * "Help me choose" under the header. Both modes share the same answers and results. */
+const MODE_CHOSEN_KEY = 'mawarith:modeChosen';
+function shouldAskMode(saved) {
+  if (progressIsMeaningful(saved)) return false;
+  try {
+    if (window.localStorage.getItem(MODE_CHOSEN_KEY)) return false;
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('go') || q.get('mode') || q.get('demo') || /donate/i.test(window.location.hash)) return false;
+  } catch (e) { return false; }
+  return true;
+}
+function ModeChooser({ current, onPick, onClose }) {
+  const h = React.createElement;
+  const box = useRef(null);
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const first = box.current && box.current.querySelector('.mode-card');
+    first && first.focus();
+    const onKey = e => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab' || !box.current) return;
+      // Keep the Tab key inside the dialog.
+      const els = box.current.querySelectorAll('button');
+      const firstEl = els[0], lastEl = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prevOverflow; };
+  }, []);
+  const card = (id, name, tag, time, text, points, cta) => h("button", {
+      type: "button", className: "mode-card" + (current === id ? " is-current" : ""), onClick: () => onPick(id), "data-umami-event": "mode-" + id },
+    h("span", { className: "mode-card-top" }, h("span", { className: "mode-card-tag" }, tag), h("span", { className: "mode-card-time" }, time)),
+    h("span", { className: "mode-card-name" }, name),
+    h("span", { className: "mode-card-text" }, text),
+    h("span", { className: "mode-card-points" }, points.map((pt, i) => h("span", { key: i }, pt))),
+    h("span", { className: "mode-card-cta" }, cta, " \u2192"));
+  // Rendered on <body>: inside the page header the fixed overlay was positioned against the header.
+  return ReactDOM.createPortal(h("div", { className: "info-overlay mode-ask-overlay", onClick: onClose },
+    h("div", { className: "mode-ask", ref: box, role: "dialog", "aria-modal": "true", "aria-labelledby": "mode-ask-title", "aria-describedby": "mode-ask-sub", onClick: e => e.stopPropagation() },
+      h("div", { className: "mode-ask-head" },
+        h("div", null,
+          h("h2", { id: "mode-ask-title", className: "mode-ask-title" }, "How would you like to begin?"),
+          h("p", { id: "mode-ask-sub", className: "mode-ask-sub" }, "Both ways give the same shares. Pick the one that suits you.")),
+        h("button", { type: "button", className: "info-close", "aria-label": "Close and decide later", onClick: onClose }, "\u00D7")),
+      h("div", { className: "mode-cards" },
+        card("guided", "Guided", "I want to understand", "About 10 minutes",
+          "One question at a time, and each step explains the rule behind it.",
+          ["Best if inheritance is new to you", "Shows the evidence from the Qur\u02BE\u0101n and Sunnah", "Shares build up as you answer"],
+          "Start the walkthrough"),
+        card("quick", "Quick", "I know the family", "About 2 minutes",
+          "A short form: tick the relatives who survive and go straight to the shares.",
+          ["Best if you know who the heirs are", "Three short screens, then the result", "The reasoning is still one tap away"],
+          "Go to the form")),
+      h("p", { className: "mode-ask-foot" }, "You can switch at any time with the Guided / Quick switch at the top. Your answers carry over."))), document.body);
+}
+
 function App() {
   const [saved] = useState(loadProgress);
+  const [modeAsk, setModeAsk] = useState(() => shouldAskMode(saved));
+  const rememberMode = v => { try { window.localStorage.setItem(MODE_CHOSEN_KEY, v); } catch (e) { /* storage unavailable */ } };
   const [resumeNote, setResumeNote] = useState(() => progressIsMeaningful(saved) ? saved.savedAt : null);
   const [deceasedSex, setDeceasedSex] = useState(() => saved && saved.deceasedSex === 'female' ? 'female' : 'male'); // 'male' | 'female'
   const [currency, setCurrency] = useState(() => saved && typeof saved.currency === 'string' ? saved.currency : 'AUD');
   ACTIVE_CURRENCY = currency; // drives fmtMoney() across the whole render tree
   // Guess the currency from location, unless the visitor already has one from a saved session.
   useEffect(() => { if (saved && saved.currency) return; let alive = true; detectCurrencyCode().then(code => { if (alive && code) setCurrency(code); }); return () => { alive = false; }; }, []);
-  const [assets, setAssets] = useState(() => objOr(saved && saved.assets, zeroMap(ASSET_CATEGORIES)));
-  const [liabilities, setLiabilities] = useState(() => objOr(saved && saved.liabilities, zeroMap(DEBT_CATEGORIES)));
+  // Itemised entries per category; see "Itemised estate entries and exchange rates" above.
+  const [assetItems, setAssetItems] = useState(() => itemsFromSaved(ASSET_CATEGORIES, saved && saved.assetItems, saved && saved.assets));
+  const [liabilityItems, setLiabilityItems] = useState(() => itemsFromSaved(DEBT_CATEGORIES, saved && saved.liabilityItems, saved && saved.liabilities));
+  const [rateOverrides, setRateOverrides] = useState(() => objOr(saved && saved.rateOverrides, {}));
+  const [fx, setFx] = useState(loadFxCache);
+  const [fxStatus, setFxStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
   const [bequestPct, setBequestPct] = useState(() => saved && saved.bequestPct >= 0 && saved.bequestPct <= 33 ? saved.bequestPct : 0); // 0..33
 
   const [heirs, setHeirs] = useState(() => objOr(saved && saved.heirs, defaultHeirs()));
@@ -3831,12 +4110,49 @@ function App() {
     try { if (id) window.localStorage.setItem('mawarith:madhhab', id); else window.localStorage.removeItem('mawarith:madhhab'); } catch (e) { /* storage unavailable */ }
   };
 
-  const setAssetVal = (key, value) => setAssets(a => ({ ...a, [key]: value }));
-  const setLiabilityVal = (key, value) => setLiabilities(l => ({ ...l, [key]: value }));
+  // Other currencies in use. Rates are fetched only once one is chosen, so a visitor who
+  // works in a single currency never makes the request.
+  const foreignCcys = useMemo(() => {
+    const seen = [];
+    [assetItems, liabilityItems].forEach(m => Object.keys(m).forEach(k => (m[k] || []).forEach(e => { if (e.ccy && e.ccy !== currency && seen.indexOf(e.ccy) < 0) seen.push(e.ccy); })));
+    return seen;
+  }, [assetItems, liabilityItems, currency]);
+  const needsFx = foreignCcys.length > 0;
+  const fxBusy = useRef(false); // one request at a time (App never unmounts, so no cleanup is needed)
+  useEffect(() => {
+    if (!needsFx || fx || fxStatus !== 'idle' || fxBusy.current) return;
+    fxBusy.current = true;
+    setFxStatus('loading');
+    fetchFxRates().then(t => { setFx(t); setFxStatus('idle'); }, () => setFxStatus('error')).then(() => { fxBusy.current = false; });
+  }, [needsFx, fx, fxStatus]);
+  const retryFx = () => setFxStatus('idle');
+  const rateOf = ccy => fxRate(fx, rateOverrides, ccy || currency, currency);
+  const missingRates = foreignCcys.filter(c => !rateOf(c));
+  // Category totals in the main currency (an entry with no rate yet counts as zero).
+  const sumItems = (cats, items) => cats.reduce((o, c) => { o[c.key] = (items[c.key] || []).reduce((sum, e) => sum + (Number(e.amount) || 0) * (rateOf(e.ccy) || 0), 0); return o; }, {});
+  const assets = sumItems(ASSET_CATEGORIES, assetItems);
+  const liabilities = sumItems(DEBT_CATEGORIES, liabilityItems);
+  const fxUsed = foreignCcys.filter(c => rateOf(c)).map(c => ({ ccy: c, rate: rateOf(c), own: Number(rateOverrides[c + '>' + currency]) > 0, date: fx ? fmtRateDate(fx.date) : '' }));
+  const fxNote = fxUsed.map(x => '1 ' + x.ccy + ' = ' + fmtRate(x.rate) + ' ' + currency + (x.own ? ' (entered by the user)' : ' (live rate, ' + x.date + ')')).join('; ');
+  // Moving to another step brings the top of that step into view. Without this, a visitor
+  // who taps Continue at the bottom of a long screen (the estate list is several screens
+  // tall on a phone) lands part-way down the next one. Skipped on first load, and when the
+  // top of the step is already in view.
+  const firstPaint = useRef(true);
+  useEffect(() => {
+    if (firstPaint.current) { firstPaint.current = false; return; }
+    const target = document.querySelector(mode === 'quick' ? '.quick-steps' : '.wiz-card');
+    if (!target) return;
+    const nav = document.querySelector('.site-nav');
+    const offset = (nav ? nav.getBoundingClientRect().height : 0) + 12;
+    const top = target.getBoundingClientRect().top;
+    if (top >= offset - 4 && top < window.innerHeight * 0.45) return;
+    const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: Math.max(0, top + window.pageYOffset - offset), behavior: calm ? 'instant' : 'smooth' });
+  }, [step, wizardId, mode]);
   useEffect(() => {
     const A = window.anime;
     if (step !== 4) return;
-    window.scrollTo(0, 0);
     if (!A || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
     const root = document.querySelector('.results-root');
     if (!root) return;
@@ -3859,7 +4175,9 @@ function App() {
   const bequestFrac = grossEstate > 0 ? bequestPct / 100 : 0;
   const bequestAmount = grossEstate * (bequestPct / 100);
   const estateAfterBequests = grossEstate - bequestAmount;
-  const caseSummary = buildCaseSummary(deceasedSex, heirs, estateValue, totalDebts, grossEstate, bequestPct, result, rules);
+  const estateProps = { assetItems, setAssetItems, liabilityItems, setLiabilityItems, estateValue, totalDebts, grossEstate, currency, setCurrency,
+    fx, fxStatus, retryFx, rateOverrides, setRateOverrides, foreignCcys, missingRates };
+  const caseSummary = buildCaseSummary(deceasedSex, heirs, estateValue, totalDebts, grossEstate, bequestPct, result, rules, fxNote);
   // Persist the computed case so the Scholar Review page can attach it to a
   // request. Local to the browser; nothing is sent anywhere by this.
   useEffect(() => {
@@ -3878,17 +4196,18 @@ function App() {
     try {
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({
         v: 1, savedAt: new Date().toISOString(),
-        deceasedSex, currency, assets, liabilities, bequestPct, heirs, activeTab, step, mode, wizardId, rules
+        deceasedSex, currency, assetItems, liabilityItems, rateOverrides, bequestPct, heirs, activeTab, step, mode, wizardId, rules
       }));
     } catch (e) { /* private mode or storage full: the calculator still works, it just won't resume */ }
-  }, [deceasedSex, currency, assets, liabilities, bequestPct, heirs, activeTab, step, mode, wizardId, rules]);
+  }, [deceasedSex, currency, assetItems, liabilityItems, rateOverrides, bequestPct, heirs, activeTab, step, mode, wizardId, rules]);
   const resetAll = () => {
     try { window.localStorage.removeItem(PROGRESS_KEY); window.localStorage.removeItem('mawarith:lastCalculation'); } catch (e) { /* storage unavailable */ }
     setResumeNote(null);
     setActiveTab('immediate');
     setHeirs(defaultHeirs());
-    setAssets(zeroMap(ASSET_CATEGORIES));
-    setLiabilities(zeroMap(DEBT_CATEGORIES));
+    setAssetItems(emptyItems(ASSET_CATEGORIES));
+    setLiabilityItems(emptyItems(DEBT_CATEGORIES));
+    setRateOverrides({});
     setBequestPct(0);
     setRules(r => rulesForMadhhab(r.madhhab));
     setStep(1);
@@ -3909,8 +4228,8 @@ function App() {
       const q = new URLSearchParams(window.location.search);
       if (q.get('demo') === '1') {
         setHeirs(h => ({ ...h, wives: 1, sons: 1, daughters: 1, father: true, mother: true }));
-        setAssets(a => ({ ...a, property: 600000 }));
-        setLiabilities(l => ({ ...l, funeral: 20000 }));
+        setAssetItems(a => ({ ...a, property: [newEntry(600000)] }));
+        setLiabilityItems(l => ({ ...l, funeral: [newEntry(20000)] }));
       }
       const go = q.get('go');
       if (go && WIZARD_SCREENS.some(sc => sc.id === go)) { setMode('guided'); setWizardId(go); }
@@ -4021,9 +4340,15 @@ function App() {
     React.createElement("button", { type: "button", onClick: resetAll }, "Start over")),
   !resumeNote && ((mode === 'guided' && wizardId === 'intro') || (mode === 'quick' && step === 1)) && React.createElement("p", { className: "mode-hint" },
     React.createElement("strong", null, "Guided"), " asks one question at a time and explains each rule as you go. ",
-    React.createElement("strong", null, "Quick"), " is a short form for those who already know which relatives survive."),
+    React.createElement("strong", null, "Quick"), " is a short form for those who already know which relatives survive. ",
+    React.createElement("button", { type: "button", className: "mode-hint-link", onClick: () => setModeAsk(true) }, "Help me choose")),
+  modeAsk && React.createElement(ModeChooser, {
+    current: mode,
+    onPick: m => { setMode(m); if (m === 'quick') setStep(1); else setWizardId('intro'); rememberMode(m); setModeAsk(false); window.scrollTo(0, 0); },
+    onClose: () => { rememberMode('later'); setModeAsk(false); }
+  }),
   mode === 'quick' && /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 mt-6"
+    className: "quick-steps flex items-center gap-2 mt-6"
   }, ['Setup', 'Heirs', 'Bequest', 'Results', 'Donate'].map((label, i) => {
     const n = i + 1;
     const active = step === n;
@@ -4032,19 +4357,21 @@ function App() {
       key: n
     }, /*#__PURE__*/React.createElement("button", {
       onClick: n >= 4 && step < 4 ? viaSchoolCheck(() => setStep(n)) : () => setStep(n),
-      className: "flex items-center gap-2 text-xs",
+      className: "quick-step flex items-center gap-2 text-xs",
+      "aria-label": "Step " + n + ": " + label,
+      "aria-current": active ? "step" : undefined,
       style: {
         color: active ? 'var(--teal-deep)' : done ? 'var(--gold)' : 'var(--ink-soft)'
       }
     }, /*#__PURE__*/React.createElement("span", {
-      className: "inline-flex items-center justify-center w-6 h-6 rounded-full border text-xs font-medium",
+      className: "quick-step-dot inline-flex items-center justify-center w-6 h-6 rounded-full border text-xs font-medium",
       style: {
         background: active ? 'var(--teal-deep)' : done ? 'var(--gold)' : 'transparent',
         color: active || done ? 'white' : 'var(--ink-soft)',
         borderColor: active ? 'var(--teal-deep)' : done ? 'var(--gold)' : 'var(--border)'
       }
     }, done ? '✓' : n), /*#__PURE__*/React.createElement("span", {
-      className: "hidden md:inline font-medium"
+      className: "quick-step-label hidden md:inline font-medium" + (active ? " is-active" : "")
     }, label)), n < 4 && /*#__PURE__*/React.createElement("div", {
       className: "flex-1 h-px",
       style: {
@@ -4060,10 +4387,7 @@ function App() {
     deceasedSex: deceasedSex,
     setDeceasedSex: setDeceasedSex,
     result: result,
-    assets: assets,
-    setAssetVal: setAssetVal,
-    liabilities: liabilities,
-    setLiabilityVal: setLiabilityVal,
+    estateProps: estateProps,
     estateValue: estateValue,
     totalDebts: totalDebts,
     currency: currency,
@@ -4100,17 +4424,7 @@ function App() {
     className: "divider-fancy my-8"
   }, /*#__PURE__*/React.createElement("span", {
     className: "font-display italic text-sm"
-  }, "Estate & debts (optional)")), /*#__PURE__*/React.createElement(EstateEntry, {
-    assets: assets,
-    setAssetVal: setAssetVal,
-    liabilities: liabilities,
-    setLiabilityVal: setLiabilityVal,
-    estateValue: estateValue,
-    totalDebts: totalDebts,
-    grossEstate: grossEstate,
-    currency: currency,
-    setCurrency: setCurrency
-  }), /*#__PURE__*/React.createElement("div", {
+  }, "Estate & debts (optional)")), /*#__PURE__*/React.createElement(EstateEntry, estateProps), /*#__PURE__*/React.createElement("div", {
     className: "flex justify-end mt-8"
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn-primary",
@@ -4380,7 +4694,7 @@ function App() {
     deceasedSex: deceasedSex,
     rules: rules
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center mt-8"
+    className: "flex flex-wrap justify-between items-center gap-3 mt-8"
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn-secondary",
     onClick: () => setStep(1)
@@ -4491,7 +4805,11 @@ function App() {
     className: "space-y-6 fade-up results-root"
   }, /*#__PURE__*/React.createElement("div", {
     className: "paper paper-warm rounded-lg p-6 md:p-8"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, missingRates.length > 0 && /*#__PURE__*/React.createElement("p", {
+    className: "fx-note fx-warn",
+    role: "status",
+    style: { margin: "0 0 .9rem" }
+  }, "Amounts entered in " + missingRates.join(", ") + " are not included in the figures below, because no exchange rate is set. Go back to the estate step to enter one."), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap items-baseline justify-between gap-3"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "ornament text-xs mb-1"
@@ -4507,7 +4825,7 @@ function App() {
     }
   }, result.school, " school \xB7 ", deceasedSex === 'male' ? 'Male' : 'Female', " deceased \xB7", ' ', result.shares.length, " share", result.shares.length !== 1 ? 's' : '', " computed", rules.madhhab ? " \xB7 following the " + madhhabName(rules.madhhab) + " school" : "")), /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-3" }, /*#__PURE__*/React.createElement("button", {
     type: "button", className: "icon-btn no-print", title: "Download PDF report", "aria-label": "Download PDF report",
-    onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab })
+    onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab, fxUsed })
   }, /*#__PURE__*/React.createElement("svg", { viewBox: "0 0 24 24", width: 20, height: 20, fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, /*#__PURE__*/React.createElement("path", { d: "M12 3v12M6 11l6 6 6-6M4 21h16" }))), grossEstate > 0 && /*#__PURE__*/React.createElement("div", {
     className: "text-right"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4559,7 +4877,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "grid lg:grid-cols-[280px_1fr] gap-0"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "p-6 md:p-8 flex flex-col items-center justify-center border-r",
+    className: "min-w-0 p-6 md:p-8 flex flex-col items-center justify-center border-r",
     style: {
       borderColor: 'var(--border)',
       background: 'var(--parchment)'
@@ -4573,7 +4891,9 @@ function App() {
     style: {
       color: 'var(--ink-soft)'
     }
-  }, "Hover over a slice to see the recipient. Click a row to view the ruling and its evidence.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "Hover over a slice to see the recipient. Click a row to view the ruling and its evidence.")), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "rr-head px-2 py-3 border-b text-xs font-medium uppercase tracking-wider grid gap-4",
     style: {
       borderColor: 'var(--border)',
@@ -4634,7 +4954,7 @@ function App() {
     className: "flex flex-wrap gap-3"
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn-secondary",
-    onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab })
+    onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab, fxUsed })
   }, "\u2B07 Download PDF report"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn-primary",
