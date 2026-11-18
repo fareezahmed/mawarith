@@ -25,7 +25,7 @@ SRC = os.path.join(ROOT, 'mcalc')
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'deploy', 'almawarith.com')
 DEV_UMAMI = '95d7e13f-5749-4edc-a724-df39b41f5246'
 PROD_UMAMI = '7da06aac-86a3-4434-83f3-4d15c82fa795'
-ASSETS = ('styles.css', 'site.js', 'motion.js')
+ASSETS = ('styles.css', 'site.js', 'motion.js', 'local-pay.js')
 IMAGES = ('logo-horizontal.png', 'logo-mark.png', 'og-image.png', 'apple-touch-icon.png',
           'favicon.ico', 'favicon-32.png', 'favicon-16.png')
 SKIP = {'services.html'}  # empty placeholder that production does not serve

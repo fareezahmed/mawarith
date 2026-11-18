@@ -3166,6 +3166,7 @@ function SupportStrip() {
       /*#__PURE__*/React.createElement("div", { className: "support-eyebrow" }, "Optional"),
       /*#__PURE__*/React.createElement("h2", { id: "support-h", className: "support-title" }, "Keep Al-Mawārīth free for the next family"),
       /*#__PURE__*/React.createElement("p", { className: "support-sub" }, "No ads, no sign-up, no fees for the calculator. A small contribution covers real costs:")),
+    /*#__PURE__*/React.createElement("div", { "data-local-pay": "" }), // filled by local-pay.js for visitors in a country with its own payment method
     /*#__PURE__*/React.createElement("div", { className: "support-cards", role: "group", "aria-label": "Ways to support" },
       SUPPORT_TIERS.map(t => /*#__PURE__*/React.createElement("button", { key: t.amount, type: "button", className: "support-card", "data-umami-event": "donate-tier", "data-umami-event-amount": t.amount, onClick: () => open(t.link), "aria-label": t.amount + ': ' + t.title },
         /*#__PURE__*/React.createElement("span", { className: "support-icon", "aria-hidden": "true" }, t.icon),
@@ -3205,7 +3206,7 @@ function DonateSection() {
     className: "donation-panel-title"
   }, "Help keep Maw\u0101r\u012Bth free"), /*#__PURE__*/React.createElement("div", {
     className: "donation-panel-sub"
-  }, "Contributions go entirely to hosting and platform maintenance.")), /*#__PURE__*/React.createElement("div", {
+  }, "Contributions go entirely to hosting and platform maintenance.")), /*#__PURE__*/React.createElement("div", { "data-local-pay": "" }), /*#__PURE__*/React.createElement("div", {
     className: "donation-amounts",
     role: "group",
     "aria-label": "Donation amount"
@@ -5266,6 +5267,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 </script>
 
 <script src="site.js"></script>
+<script src="local-pay.js"></script>
 <script defer src="motion.js"></script>
 </body>
 </html>
