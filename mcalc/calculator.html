@@ -1122,6 +1122,17 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   summary.wiz-ev-h:focus-visible { outline: 2px solid var(--teal-deep); outline-offset: 3px; border-radius: 4px; }
   .wiz-ev-toggle { font-weight: 600; letter-spacing: 0.04em; text-transform: none; font-size: 0.72rem; color: var(--teal-deep); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.6rem; background: var(--parchment); }
   details.wiz-evidence:not([open]) summary.wiz-ev-h { margin-bottom: 0; }
+  /* The evidence toggle is a full-width button so nobody misses it when the evidence starts folded away. */
+  .wiz-evidence.wiz-evidence-btn { border-top: 0; padding-top: 0; }
+  summary.wiz-ev-h.wiz-ev-btn { text-transform: none; letter-spacing: 0; font-size: 0.92rem; font-weight: 600; color: var(--teal-deep); border: 1px solid var(--gold-light); background: var(--parchment); border-radius: 10px; padding: 0.6rem 0.85rem; min-height: 48px; }
+  summary.wiz-ev-h.wiz-ev-btn:hover { border-color: var(--gold); }
+  details.wiz-evidence[open] summary.wiz-ev-h.wiz-ev-btn { margin-bottom: 0.9rem; }
+  .wiz-ev-btn-main { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+  .wiz-ev-ico { flex: none; width: 1.9rem; height: 1.9rem; border-radius: 999px; background: rgba(182,138,62,.16); color: var(--gold-text); display: inline-flex; align-items: center; justify-content: center; }
+  .wiz-ev-btn-text { display: flex; flex-direction: column; min-width: 0; }
+  .wiz-ev-btn-s { font-size: 0.76rem; font-weight: 400; color: var(--ink-soft); line-height: 1.4; }
+  .wiz-ev-chev { flex: none; font-size: 0.78rem; font-weight: 600; color: var(--teal-deep); border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.7rem; background: #fff; }
+  .wiz-teach p.wiz-ev-tip { margin-top: 0.9rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--gold-light); background: rgba(182,138,62,.08); border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--ink); }
   .wiz-teach .wiz-ev-grade { font-size: 0.74rem; color: var(--ink-soft); line-height: 1.5; margin-top: 0.15rem; }
   .wiz-ev-grade-l { font-weight: 700; color: var(--gold-text); letter-spacing: 0.03em; }
   .wiz-ev { margin-bottom: 0.85rem; }
@@ -1903,8 +1914,8 @@ function calcSunni(h, deceasedSex, rules) {
       count: h.wives,
       perPerson: each,
       note: (hasAnyDescendant
-        ? 'The wife\'s share is 1/8, not 1/4, because the deceased left a child or a child of a son.'
-        : 'The wife\'s share is 1/4. It would drop to 1/8 if the deceased left a child or a child of a son.')
+        ? 'The wife\'s share is 1/8, not 1/4, because the deceased left a child, a son\'s son or a son\'s daughter.'
+        : 'The wife\'s share is 1/4. It would drop to 1/8 if the deceased left a child, a son\'s son or a son\'s daughter.')
         + (h.wives > 1 ? ` The ${h.wives} wives do not each get ${fStr(wifeShare)}: they share the one ${fStr(wifeShare)} equally, ${fStr(each)} each.` : ''),
       reason: hasAnyDescendant ? 'Sūrat al-Nisāʾ 4:12: "And for them [wives] is one fourth if you leave no child. But if you leave a child, then for them is an eighth."' : 'Sūrat al-Nisāʾ 4:12: "And for them [wives] is one fourth if you leave no child."',
       category: 'spouse'
@@ -1917,8 +1928,8 @@ function calcSunni(h, deceasedSex, rules) {
       relation: 'Spouse',
       fraction: husbandShare,
       note: hasAnyDescendant
-        ? 'The husband\'s share is 1/4, not 1/2, because the deceased left a child or a child of a son (from him or from another husband).'
-        : 'The husband\'s share is 1/2. It would drop to 1/4 if the deceased left a child or a child of a son.',
+        ? 'The husband\'s share is 1/4, not 1/2, because the deceased left a child, a son\'s son or a son\'s daughter (from him or from another husband).'
+        : 'The husband\'s share is 1/2. It would drop to 1/4 if the deceased left a child, a son\'s son or a son\'s daughter.',
       reason: hasAnyDescendant ? 'Sūrat al-Nisāʾ 4:12: "But if they [wives] leave a child, for you is one fourth of what they leave."' : 'Sūrat al-Nisāʾ 4:12: "For you is half of what your wives leave if they have no child."',
       category: 'spouse'
     });
@@ -3055,7 +3066,7 @@ function ResultRow({
     style: {
       gridTemplateColumns: 'auto 1fr auto auto auto'
     },
-    onClick: () => setOpen(!open)
+    onClick: () => { if (!open) track('result-row-open'); setOpen(!open); }
   }, /*#__PURE__*/React.createElement("span", {
     className: "legend-swatch rr-sw",
     style: {
@@ -3202,6 +3213,8 @@ function DonateSection() {
     key: tier.label,
     type: "button",
     className: 'donate-amount' + (selected === idx ? ' selected' : '') + (tier.italic ? ' italic' : ''),
+    "data-umami-event": "donate-tier",
+    "data-umami-event-amount": tier.label,
     onClick: () => openDonation(idx)
   }, tier.label))), /*#__PURE__*/React.createElement("p", {
     className: "donation-stripe-note"
@@ -3253,17 +3266,20 @@ const WIZARD_SCREENS = [
   { id: 'intro', sec: 'Welcome', kind: 'info', title: 'How Al-Mawārīth works', teach: [
     'Al-Mawārīth is the Qurʾānic system for dividing what a person leaves behind. Before any heir receives a share, three things are taken from the estate, in this order:',
     { list: ['Funeral and burial costs.', 'Debts the deceased owed.', 'Any bequest (waṣiyyah), which may be at most one-third of what is left.'] },
-    'Whatever remains is divided in two passes. First the prescribed shares (farāʾiḍ) go to the named heirs: spouse, parents, daughters, and so on. Then any remainder goes to the residuary heirs (ʿaṣabah), the closest relatives who take what is left. Most are men related through men, such as a son, the father or a brother, but women can be residuary heirs too: a daughter inherits alongside a son, and a sister alongside a brother or alongside the daughters.',
+    'What remains goes to the heirs. There are two classes of heir:',
+    { list: [
+      'Heirs with a prescribed share (dhawū al-furūḍ). The Qurʾān names a fraction for each of them, and the fraction depends on who else survives. For example, a husband receives 1/2 if his wife left no child, and 1/4 if she did.',
+      'Residuary heirs (ʿaṣabah). They take whatever is left after the prescribed shares. A son is the clearest example, and a daughter shares the remainder with him.' ] },
     'This walkthrough asks one question at a time and shows the effect of each answer, so you can see exactly how the division forms.' ] },
   { id: 'sex', sec: 'The deceased', kind: 'sex', title: 'Was the deceased a man or a woman?' },
   { id: 'spouse', sec: 'Spouse', kind: 'spouse', title: 'Did the deceased leave a spouse?', teach: (h, r, sex) => sex === 'female' ? [
-    'Her husband takes 1/2 if she left no child and no child of a son.',
-    'He takes 1/4 if she left any child (a son or a daughter) or any child of a son. This applies whether the child is from him or from another husband.',
+    'Her husband takes 1/2 if she left no child, no son\'s son and no son\'s daughter.',
+    'He takes 1/4 if she left a son, a daughter, a son\'s son or a son\'s daughter. This applies whether the child is from him or from another husband.',
     'The spouse is never excluded and never takes the leftover residue.' ] : [
-    'His wife takes 1/4 if he left no child and no child of a son.',
-    'She takes 1/8 if he left any child (a son or a daughter) or any child of a son, whether from her or from another wife.',
+    'His wife takes 1/4 if he left no child, no son\'s son and no son\'s daughter.',
+    'She takes 1/8 if he left a son, a daughter, a son\'s son or a son\'s daughter, whether from her or from another wife.',
     'With two, three or four wives, each does not get her own 1/4 or 1/8: they share that one portion equally.',
-    'The spouse is never excluded and never takes the leftover residue.' ] , evidence: [{"ar": "وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ", "en": "And for you is half of what your wives leave if they have no child; but if they have a child, for you is one fourth of what they leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"ar": "وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم", "en": "And for them is one fourth of what you leave if you have no child; but if you have a child, for them is an eighth of what you leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"note": "A child (walad) here includes a grandchild through a son, by the consensus of the scholars; a daughter's child does not reduce the spouse's share.", "src": "Ijmāʿ: Ibn al-Mundhir, al-Ijmāʿ; Ibn Qudāmah, al-Mughnī"}] },
+    'The spouse is never excluded and never takes the leftover residue.' ] , evidence: [{"ar": "وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ", "en": "And for you is half of what your wives leave if they have no child; but if they have a child, for you is one fourth of what they leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"ar": "وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم", "en": "And for them is one fourth of what you leave if you have no child; but if you have a child, for them is an eighth of what you leave.", "src": "Sūrat al-Nisāʾ 4:12"}, {"note": "A child (walad) here includes a son's son and a son's daughter, by the consensus of the scholars; a daughter's child does not reduce the spouse's share.", "src": "Ijmāʿ: Ibn al-Mundhir, al-Ijmāʿ; Ibn Qudāmah, al-Mughnī"}] },
   { id: 'sons', sec: 'Children', kind: 'count', key: 'sons', max: 20, title: 'How many sons survive?', teach: ["A son is a strong residuary heir (ʿaṣabah) who takes the remaining estate after the prescribed shares have been distributed. When sons and daughters inherit together, they share the residue so that each son receives twice the share of each daughter (ratio 2:1), “for the male, the share of two females.”", {"ar": "يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ", "en": "Allah instructs you concerning your children: for the male, what is equal to the share of two females.", "src": "Sūrat al-Nisāʾ 4:11"}, "The presence of a son also affects other heirs: he reduces the spouse's prescribed share and excludes the deceased's siblings and grandchildren through a son (sons and daughters of a son) from inheriting.", "Note: Grandchildren through a daughter are not among the heirs with prescribed shares or the residuary heirs."], evidence: [{"ar": "أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لِأَوْلَى رَجُلٍ ذَكَرٍ", "en": "Give the prescribed shares to those entitled to them; whatever remains goes to the nearest male relative.", "note": "The son is the nearest male relative, so after the prescribed shares the remainder is his.", "src": "Ṣaḥīḥ al-Bukhārī 6732; Ṣaḥīḥ Muslim 1615"}] },
   { id: 'daughters', sec: 'Children', kind: 'count', key: 'daughters', max: 20, title: 'How many daughters survive?', teach: ["If there is no surviving son, one daughter receives 1/2, while two or more daughters collectively receive 2/3.", {"ar": "فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ", "en": "If there are only daughters, two or more, for them is two thirds of the estate; and if there is one, for her is half.", "src": "Sūrat al-Nisāʾ 4:11"}, "If a son is present, the daughters become residuary heirs through their brothers (ʿaṣabah bi-l-ghayr) and share the residue so that each son receives twice the share of each daughter (ratio 2:1), “for the male, the share of two females.”", {"ar": "لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ", "en": "For the male, what is equal to the share of two females.", "src": "Sūrat al-Nisāʾ 4:11"}], evidence: [{"ar": "أَعْطِ ابْنَتَيْ سَعْدٍ الثُّلُثَيْنِ، وَأَعْطِ أُمَّهُمَا الثُّمُنَ، وَمَا بَقِيَ فَهُوَ لَكَ", "en": "Give the two daughters of Saʿd (رضي الله عنه) two thirds, give their mother an eighth, and what remains is yours.", "note": "The ruling of the Prophet ﷺ for the two daughters of Saʿd ibn al-Rabīʿ (رضي الله عنه): two daughters already take the two-thirds share, which is how the verse has been applied since.", "src": "Sunan al-Tirmidhī 2092; Sunan Abī Dāwūd 2891; Sunan Ibn Mājah 2720"}] },
   { id: 'sonsSons', sec: 'Grandchildren', kind: 'count', key: 'sonsSons', max: 20, show: h => h.sons === 0, title: "How many sons of a son (grandsons through a son)?", teach: [
@@ -3505,16 +3521,16 @@ function eligibilityItems(H, deceasedSex, rules) {
   const mushtarakaNothing = 'Receives nothing: the husband’s half, the mother’s (or grandmother’s) sixth and the maternal half-siblings’ third exhaust the estate (al-Mushtarakah). The Mālikī and Shāfiʿī ruling, under which the third is shared, can be selected.';
   const sibCount = fullPatSibs + H.maternalBrothers + H.maternalSisters;
   const kids = H.sons + H.daughters, grandkids = H.sonsSons + H.sonsDaughters;
-  const descWord = kids > 1 ? 'children' : kids === 1 ? 'a child' : grandkids > 1 ? 'grandchildren through a son' : 'a grandchild through a son';
+  const descWord = kids > 1 ? 'children' : kids === 1 ? 'a child' : [H.sonsSons > 1 ? "sons of a son" : H.sonsSons === 1 ? "a son's son" : '', H.sonsDaughters > 1 ? "daughters of a son" : H.sonsDaughters === 1 ? "a son's daughter" : ''].filter(Boolean).join(' and ');
   const femDescWord = H.daughters > 1 ? 'daughters' : H.daughters === 1 ? 'a daughter' : H.sonsDaughters > 1 ? 'granddaughters through a son' : 'a granddaughter through a son';
   const maleDescWord = hasSon ? (H.sons > 1 ? 'sons survive' : 'a son survives') : (H.sonsSons > 1 ? 'grandsons through a son survive' : 'a grandson through a son survives');
-  const noDesc = 'the deceased left no child and no grandchild through a son';
+  const noDesc = "the deceased left no child, no son's son and no son's daughter";
   const pl = (n, one, many) => n === 1 ? one : many;
   /* "Inherits 1/2" for one heir, "The 3 daughters share 2/3 equally" for a group. */
   const takes = (n, many, frac) => n === 1 ? 'Inherits ' + frac : 'The ' + n + ' ' + many + ' share ' + frac + ' equally';
   const remainder = 'what remains after the prescribed shares';
   const byMaleDescFather = () => (!hasMaleDesc && !father && pgf) ? 'Blocked: the paternal grandfather excludes brothers and sisters under the Ḥanafī ruling you selected.' : 'Blocked: excluded by ' + (hasMaleDesc && father ? 'a son or grandson through a son, and the father' : hasMaleDesc ? 'a son or grandson through a son' : 'the father') + '. Closer heirs block more distant ones.';
-  const byDescFatherGf = () => 'Blocked: excluded by ' + (hasDesc ? 'a son, daughter or grandchild through a son' : father ? 'the father' : 'the paternal grandfather') + '.';
+  const byDescFatherGf = () => 'Blocked: excluded by ' + (hasDesc ? "a son, a daughter, a son's son or a son's daughter" : father ? 'the father' : 'the paternal grandfather') + '.';
   const items = [];
   const add = (present, label, blockReason, inReason, cats, expect) => { if (present) items.push({ label, blocked: !!blockReason, reason: blockReason || inReason, cats: cats || [], expect: blockReason ? null : (expect || null) }); };
   const FIX = frac => ({ fixed: frac }), RES = { residue: true };
@@ -3789,9 +3805,17 @@ function GuidedWizard(props) {
   // Each new screen rises in block by block (anime.js). Falls back to the CSS fade when
   // anime is unavailable or the visitor prefers reduced motion.
   const cardRef = useRef(null);
-  // The Evidence block is an accordion: open by default, and if the reader closes it,
-  // it stays closed on the following steps until they open it again.
-  const [evOpen, setEvOpen] = useState(true);
+  // The Evidence block is an accordion. Whether it starts folded or open depends on the
+  // layout test (see EVIDENCE_VARIANT); once the reader opens or closes it, that choice
+  // holds on the following steps and on later visits in this browser.
+  const [evOpen, setEvOpen] = useState(evidenceStartsOpen);
+  const toggleEvidence = e => {
+    e.preventDefault();
+    const next = !evOpen;
+    setEvOpen(next);
+    try { window.localStorage.setItem(EVIDENCE_PREF_KEY, next ? 'open' : 'closed'); } catch (err) { /* storage unavailable */ }
+    props.onEvidence && props.onEvidence(next, screen.id);
+  };
   useEffect(() => {
     const el = cardRef.current, A = window.anime;
     if (!el || !A || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
@@ -3904,7 +3928,16 @@ function GuidedWizard(props) {
       h("div", { className: "wiz-progress-bar" }, h("div", { className: "wiz-progress-fill", style: { width: `${Math.round(pos / denom * 100)}%` } })),
       h("div", { className: "wiz-progress-label" }, `Step ${pos + 1} of ${visible.length} · ${screen.sec}`)),
     h("div", { className: "section-h", style: { marginTop: ".8rem" } }, screen.title),
-    h("div", { className: "wiz-teach" }, teachList.map((p, i) => typeof p === "string" ? h("p", { key: i }, explained(p)) : p.list ? h("ol", { key: i, className: "wiz-steps" }, p.list.map((li, j) => h("li", { key: j }, explained(li)))) : h("div", { className: "wiz-ev wiz-ev-inline", key: i }, p.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, p.ar), p.en && h("p", { className: "wiz-ev-en" }, withHonorifics(p.en)), h("div", { className: "wiz-ev-src" }, srcLine(p.src)))), screen.basis && h("div", { className: "wiz-basis" }, screen.basis), evidenceList.length > 0 && h("details", { className: "wiz-evidence", open: evOpen, onToggle: e => setEvOpen(e.target.open) }, h("summary", { className: "wiz-ev-h" }, h("span", null, "Evidence"), h("span", { className: "wiz-ev-toggle", "aria-hidden": "true" }, evOpen ? "Hide" : "Show")), evidenceList.map((ev, i) => { const grade = ev.grade || hadithGrade(ev.src); return h("div", { className: "wiz-ev", key: i }, ev.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, ev.ar), ev.en && h("p", { className: "wiz-ev-en" }, withHonorifics(ev.en)), ev.note && h("p", { className: "wiz-ev-note" }, explained(ev.note)), h("div", { className: "wiz-ev-src" }, srcLine(ev.src)), grade && h("div", { className: "wiz-ev-grade" }, h("span", { className: "wiz-ev-grade-l" }, "Grading"), " ", withHonorifics(grade))); }))),
+    h("div", { className: "wiz-teach" }, teachList.map((p, i) => typeof p === "string" ? h("p", { key: i }, explained(p)) : p.list ? h("ol", { key: i, className: "wiz-steps" }, p.list.map((li, j) => h("li", { key: j }, explained(li)))) : h("div", { className: "wiz-ev wiz-ev-inline", key: i }, p.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, p.ar), p.en && h("p", { className: "wiz-ev-en" }, withHonorifics(p.en)), h("div", { className: "wiz-ev-src" }, srcLine(p.src)))), screen.basis && h("div", { className: "wiz-basis" }, screen.basis), screen.id === "intro" && h("p", { className: "wiz-ev-tip" }, evOpen
+        ? ["Each step shows the verse or \u1E25ad\u012Bth behind its rule. Tap ", h("strong", { key: "b" }, "Hide the evidence"), " on any step if you prefer a shorter screen."]
+        : ["Each step has a ", h("strong", { key: "b" }, "Show the evidence"), " button. Tap it to read the verse or \u1E25ad\u012Bth behind the rule."]),
+      evidenceList.length > 0 && h("details", { className: "wiz-evidence wiz-evidence-btn", open: evOpen }, h("summary", { className: "wiz-ev-h wiz-ev-btn", onClick: toggleEvidence },
+        h("span", { className: "wiz-ev-btn-main" },
+          h("span", { className: "wiz-ev-ico", "aria-hidden": "true" }, h("svg", { viewBox: "0 0 24 24", width: 16, height: 16, fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }, h("path", { d: "M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" }), h("path", { d: "M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" }))),
+          h("span", { className: "wiz-ev-btn-text" },
+            h("span", null, evOpen ? "Hide the evidence" : "Show the evidence"),
+            !evOpen && h("span", { className: "wiz-ev-btn-s" }, "Verse or \u1E25ad\u012Bth \u00B7 " + evidenceList.length + (evidenceList.length === 1 ? " source" : " sources")))),
+        h("span", { className: "wiz-ev-chev", "aria-hidden": "true" }, evOpen ? "Hide" : "Show")), evidenceList.map((ev, i) => { const grade = ev.grade || hadithGrade(ev.src); return h("div", { className: "wiz-ev", key: i }, ev.ar && h("p", { className: "wiz-ev-ar", lang: "ar", dir: "rtl" }, ev.ar), ev.en && h("p", { className: "wiz-ev-en" }, withHonorifics(ev.en)), ev.note && h("p", { className: "wiz-ev-note" }, explained(ev.note)), h("div", { className: "wiz-ev-src" }, srcLine(ev.src)), grade && h("div", { className: "wiz-ev-grade" }, h("span", { className: "wiz-ev-grade-l" }, "Grading"), " ", withHonorifics(grade))); }))),
     input && h("div", { className: "wiz-input" }, input),
     live,
     review,
@@ -4108,6 +4141,58 @@ function buildReportPdf(d) {
   doc.save('mawarith-inheritance-report.pdf');
 }
 
+/* Anonymous usage counts, sent as Umami custom events. They record which screen was reached,
+ * in which mode, which evidence layout was shown and roughly how long a calculation took.
+ * They never include the family, the amounts, the school of fiqh or anything typed, and no
+ * identifier is created (Umami sets no cookie). If the script is blocked, every call does nothing.
+ *
+ *   calc-start    { mode, evidenceLayout* }             left the first screen
+ *   calc-step     { mode, step, evidenceLayout* }       first time each screen is reached in a run
+ *   calc-results  { mode, resumed, switched, seconds, time, evidenceLayout*, evidenceUse* }
+ *   evidence-show / evidence-hide { step, evidenceLayout }   the button on a Guided step
+ *   mode-guided / mode-quick      picked in the "How would you like to begin?" chooser
+ *   mode-switch   { to }          the Guided / Quick switch in the header
+ *   result-row-open, pdf-download, scholar-review-from-results, donate-open, donate-tier, start-over
+ *   (* Guided runs only) */
+const track = (name, data) => { try { if (window.umami && typeof window.umami.track === 'function') window.umami.track(name, data); } catch (e) { /* analytics must never break the page */ } };
+/* Seconds this page has been on screen, so time spent in another tab or app is not counted. */
+const activeSeconds = (() => {
+  let total = 0, since = document.hidden ? null : Date.now();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (since) total += Date.now() - since; since = null; } else if (!since) since = Date.now();
+  });
+  return () => (total + (since ? Date.now() - since : 0)) / 1000;
+})();
+const timeBand = s => s < 60 ? 'under 1 min' : s < 120 ? '1 to 2 min' : s < 300 ? '2 to 5 min' : s < 600 ? '5 to 10 min' : s < 1200 ? '10 to 20 min' : 'over 20 min';
+const QUICK_STEP_NAMES = ['setup', 'heirs', 'bequest', 'results', 'donate'];
+const newRun = (resumed, done) => ({ started: !!resumed, resumed: !!resumed, done: !!done, t0: activeSeconds(), seen: {}, evidence: 'untouched', switched: false });
+
+/* Evidence layout test (A/B). Each browser is put in one of two groups at random, once:
+ *   'hidden'  the evidence on each Guided step is folded behind a "Show the evidence" button
+ *   'open'    the evidence is shown on every step, with a "Hide the evidence" button
+ * The group is kept in this browser only and is sent with the Guided events above.
+ * ?ev=hidden or ?ev=open forces a layout for one page load (testing and the demo videos).
+ * To end the test, make EVIDENCE_VARIANT the winning value. */
+const EVIDENCE_AB_KEY = 'mawarith:abEvidence';
+const EVIDENCE_PREF_KEY = 'mawarith:evidencePref';
+let EVIDENCE_FORCED = false;
+const EVIDENCE_VARIANT = (() => {
+  try {
+    const q = new URLSearchParams(window.location.search).get('ev');
+    if (q === 'hidden' || q === 'open') { EVIDENCE_FORCED = true; return q; }
+    let v = window.localStorage.getItem(EVIDENCE_AB_KEY);
+    if (v !== 'hidden' && v !== 'open') { v = Math.random() < 0.5 ? 'hidden' : 'open'; window.localStorage.setItem(EVIDENCE_AB_KEY, v); }
+    return v;
+  } catch (e) { return 'hidden'; }
+})();
+/* The reader's own last choice wins over the group's starting layout. */
+const evidenceStartsOpen = () => {
+  if (!EVIDENCE_FORCED) {
+    try { const p = window.localStorage.getItem(EVIDENCE_PREF_KEY); if (p === 'open') return true; if (p === 'closed') return false; } catch (e) { /* storage unavailable */ }
+  }
+  return EVIDENCE_VARIANT === 'open';
+};
+
 /* Saved progress. Every answer is kept in this browser's local storage so a visitor who
  * leaves the calculator (another page, a closed tab, a phone call) comes back to the same
  * screen. Nothing is sent anywhere. Kept for 30 days from the last change; "Start over"
@@ -4217,6 +4302,36 @@ function App() {
   const [step, setStep] = useState(() => saved && saved.step >= 1 && saved.step <= 5 ? Math.min(4, saved.step) : 1);
   const [mode, setMode] = useState(() => saved && saved.mode === 'quick' ? 'quick' : 'guided'); // 'guided' | 'quick'
   const [wizardId, setWizardId] = useState(() => saved && WIZARD_SCREENS.some(sc => sc.id === saved.wizardId) ? saved.wizardId : 'intro');
+  // Usage counts for this run through the calculator (see track()). A run that was resumed
+  // from saved answers is marked, and gets no duration, since most of it happened earlier.
+  const run = useRef(null);
+  if (!run.current) run.current = newRun(progressIsMeaningful(saved), saved && saved.step >= 4);
+  const lastScreen = useRef(null);
+  useEffect(() => {
+    const r = run.current;
+    const name = mode === 'guided' ? wizardId : QUICK_STEP_NAMES[step - 1];
+    const prev = lastScreen.current;
+    lastScreen.current = { mode, name };
+    if (!prev || (prev.mode === mode && prev.name === name)) return; // first paint is already a page view
+    if (name === 'donate') { track('donate-open'); return; }
+    if (mode === 'guided' ? name === 'intro' : name === 'setup') return;
+    // "View full results" in Guided lands on the results screen the two modes share.
+    const flow = name === 'results' && prev.mode === 'guided' ? 'guided' : mode;
+    const base = flow === 'guided' ? { mode: flow, evidenceLayout: EVIDENCE_VARIANT } : { mode: flow };
+    if (!r.started) { r.started = true; track('calc-start', base); }
+    if (name !== 'results') {
+      if (!r.seen[flow + ':' + name]) { r.seen[flow + ':' + name] = true; track('calc-step', { ...base, step: name }); }
+      return;
+    }
+    if (r.done) return;
+    r.done = true;
+    const d = { ...base, resumed: r.resumed, switched: r.switched };
+    if (flow === 'guided') d.evidenceUse = r.evidence;
+    if (!r.resumed) { const secs = Math.round(activeSeconds() - r.t0); d.seconds = secs; d.time = timeBand(secs); }
+    track('calc-results', d);
+  }, [mode, step, wizardId]);
+  const onEvidence = (open, stepId) => { run.current.evidence = open ? 'opened' : 'closed'; track(open ? 'evidence-show' : 'evidence-hide', { step: stepId, evidenceLayout: EVIDENCE_VARIANT }); };
+  const switchMode = to => { if (mode !== to) { run.current.switched = true; track('mode-switch', { to }); } setMode(to); };
   // School-specific rulings the user can switch on where the schools differ (see calcSunni).
   const [rules, setRules] = useState(() => {
     let savedSchool = null;
@@ -4322,6 +4437,8 @@ function App() {
   }, [deceasedSex, currency, assetItems, liabilityItems, rateOverrides, bequestPct, heirs, activeTab, step, mode, wizardId, rules]);
   const resetAll = () => {
     try { window.localStorage.removeItem(PROGRESS_KEY); window.localStorage.removeItem('mawarith:lastCalculation'); } catch (e) { /* storage unavailable */ }
+    run.current = newRun(false, false);
+    track('start-over');
     setResumeNote(null);
     setActiveTab('immediate');
     setHeirs(defaultHeirs());
@@ -4439,11 +4556,11 @@ function App() {
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: mode === 'guided' ? 'active' : '',
-    onClick: () => setMode('guided')
+    onClick: () => switchMode('guided')
   }, "Guided"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: mode === 'quick' ? 'active' : '',
-    onClick: () => setMode('quick')
+    onClick: () => switchMode('quick')
   }, "Quick")), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: goToDonate,
@@ -4464,7 +4581,7 @@ function App() {
     React.createElement("button", { type: "button", className: "mode-hint-link", onClick: () => setModeAsk(true) }, "Help me choose")),
   modeAsk && React.createElement(ModeChooser, {
     current: mode,
-    onPick: m => { setMode(m); if (m === 'quick') setStep(1); else setWizardId('intro'); rememberMode(m); setModeAsk(false); window.scrollTo(0, 0); },
+    onPick: m => { run.current.t0 = activeSeconds(); setMode(m); if (m === 'quick') setStep(1); else setWizardId('intro'); rememberMode(m); setModeAsk(false); window.scrollTo(0, 0); },
     onClose: () => { rememberMode('later'); setModeAsk(false); }
   }),
   mode === 'quick' && /*#__PURE__*/React.createElement("div", {
@@ -4519,7 +4636,8 @@ function App() {
     setWizardId: setWizardId,
     goResults: goResults,
     rules: rules,
-    setRules: setRules
+    setRules: setRules,
+    onEvidence: onEvidence
   }), mode === 'quick' && step === 1 && /*#__PURE__*/React.createElement("div", {
     className: "paper paper-warm rounded-lg p-6 md:p-10 stagger"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4949,7 +5067,7 @@ function App() {
       color: 'var(--ink-soft)'
     }
   }, result.school, " school \xB7 ", deceasedSex === 'male' ? 'Male' : 'Female', " deceased \xB7", ' ', result.shares.length, " share", result.shares.length !== 1 ? 's' : '', " computed", rules.madhhab ? " \xB7 following the " + madhhabName(rules.madhhab) + " school" : "")), /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-3" }, /*#__PURE__*/React.createElement("button", {
-    type: "button", className: "icon-btn no-print", title: "Download PDF report", "aria-label": "Download PDF report",
+    type: "button", className: "icon-btn no-print", title: "Download PDF report", "aria-label": "Download PDF report", "data-umami-event": "pdf-download",
     onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab, fxUsed })
   }, /*#__PURE__*/React.createElement("svg", { viewBox: "0 0 24 24", width: 20, height: 20, fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, /*#__PURE__*/React.createElement("path", { d: "M12 3v12M6 11l6 6 6-6M4 21h16" }))), grossEstate > 0 && /*#__PURE__*/React.createElement("div", {
     className: "text-right"
@@ -5068,7 +5186,7 @@ function App() {
     /*#__PURE__*/React.createElement("p", { style: { fontSize: '.92rem', color: 'var(--ink-soft)', lineHeight: 1.7, margin: 0 } },
       "This result is an educational guide. For a binding distribution, a qualified scholar or Al-Maw\u0101r\u012Bth expert reviews your case and issues a signed report. Your calculation and case summary are attached to the request automatically, so nothing needs to be typed again.")),
     /*#__PURE__*/React.createElement("div", { className: "scholar-cta-actions" },
-      /*#__PURE__*/React.createElement("a", { className: "btn-primary", href: "scholar-review.html#request" }, "Request scholar review \u2192"),
+      /*#__PURE__*/React.createElement("a", { className: "btn-primary", href: "scholar-review.html#request", "data-umami-event": "scholar-review-from-results" }, "Request scholar review \u2192"),
       /*#__PURE__*/React.createElement("span", { className: "scholar-cta-note" }, "Report attached \u00B7 free to ask \u00B7 quote before any fee"))), /*#__PURE__*/React.createElement(SupportStrip, null), /*#__PURE__*/React.createElement("div", {
     id: "results-actions",
     className: "flex flex-wrap justify-between items-center gap-3"
@@ -5079,6 +5197,7 @@ function App() {
     className: "flex flex-wrap gap-3"
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn-secondary",
+    "data-umami-event": "pdf-download",
     onClick: () => buildReportPdf({ deceasedSex, heirs, result, currency, estateValue, totalDebts, grossEstate, bequestPct, bequestAmount, estateAfterBequests, madhhab: rules.madhhab, fxUsed })
   }, "\u2B07 Download PDF report"), /*#__PURE__*/React.createElement("button", {
     type: "button",
