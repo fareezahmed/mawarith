@@ -3167,12 +3167,12 @@ function SupportStrip() {
       /*#__PURE__*/React.createElement("h2", { id: "support-h", className: "support-title" }, "Keep Al-Mawārīth free for the next family"),
       /*#__PURE__*/React.createElement("p", { className: "support-sub" }, "No ads, no sign-up, no fees for the calculator. A small contribution covers real costs:")),
     /*#__PURE__*/React.createElement("div", { className: "support-cards", role: "group", "aria-label": "Ways to support" },
-      SUPPORT_TIERS.map(t => /*#__PURE__*/React.createElement("button", { key: t.amount, type: "button", className: "support-card", onClick: () => open(t.link), "aria-label": t.amount + ': ' + t.title },
+      SUPPORT_TIERS.map(t => /*#__PURE__*/React.createElement("button", { key: t.amount, type: "button", className: "support-card", "data-umami-event": "donate-tier", "data-umami-event-amount": t.amount, onClick: () => open(t.link), "aria-label": t.amount + ': ' + t.title },
         /*#__PURE__*/React.createElement("span", { className: "support-icon", "aria-hidden": "true" }, t.icon),
         /*#__PURE__*/React.createElement("span", { className: "support-amount" }, t.amount),
         /*#__PURE__*/React.createElement("span", { className: "support-card-title" }, t.title),
         /*#__PURE__*/React.createElement("span", { className: "support-note" }, t.note))),
-      /*#__PURE__*/React.createElement("button", { type: "button", className: "support-card support-card-other", onClick: () => open(DONATION_TIERS[3].link) },
+      /*#__PURE__*/React.createElement("button", { type: "button", className: "support-card support-card-other", "data-umami-event": "donate-tier", "data-umami-event-amount": "other", onClick: () => open(DONATION_TIERS[3].link) },
         /*#__PURE__*/React.createElement("span", { className: "support-icon", "aria-hidden": "true" }, "❤️"),
         /*#__PURE__*/React.createElement("span", { className: "support-amount" }, "Any amount"),
         /*#__PURE__*/React.createElement("span", { className: "support-card-title" }, "Choose your own"),
@@ -4146,15 +4146,25 @@ function buildReportPdf(d) {
  * They never include the family, the amounts, the school of fiqh or anything typed, and no
  * identifier is created (Umami sets no cookie). If the script is blocked, every call does nothing.
  *
- *   calc-start    { mode, evidenceLayout* }             left the first screen
- *   calc-step     { mode, step, evidenceLayout* }       first time each screen is reached in a run
- *   calc-results  { mode, resumed, switched, seconds, time, evidenceLayout*, evidenceUse* }
+ *   guided-start, quick-start         left the first screen
+ *   guided-step, quick-step { step }  first time each screen is reached in a run
+ *   guided-estate, guided-review, quick-bequest   milestones with names of their own, so Umami funnels can use them as steps
+ *   guided-results, quick-results { resumed, switched, seconds, time, evidenceLayout*, evidenceUse* }
+ *   calc-results  { mode, ...same }   sent with either of the two above: one goal for both modes
  *   evidence-show / evidence-hide { step, evidenceLayout }   the button on a Guided step
+ * Every Guided event also carries the Umami tag 'evidence-hidden' or 'evidence-open', so any
+ * report in Umami (goals, funnels, journeys) can be filtered to one group of the layout test.
  *   mode-guided / mode-quick      picked in the "How would you like to begin?" chooser
  *   mode-switch   { to }          the Guided / Quick switch in the header
  *   result-row-open, pdf-download, scholar-review-from-results, donate-open, donate-tier, start-over
  *   (* Guided runs only) */
-const track = (name, data) => { try { if (window.umami && typeof window.umami.track === 'function') window.umami.track(name, data); } catch (e) { /* analytics must never break the page */ } };
+const track = (name, data, tag) => {
+  try {
+    const u = window.umami;
+    if (!u || typeof u.track !== 'function') return;
+    if (tag) u.track(p => ({ ...p, name, data, tag })); else u.track(name, data);
+  } catch (e) { /* analytics must never break the page */ }
+};
 /* Seconds this page has been on screen, so time spent in another tab or app is not counted. */
 const activeSeconds = (() => {
   let total = 0, since = document.hidden ? null : Date.now();
@@ -4172,7 +4182,10 @@ const newRun = (resumed, done) => ({ started: !!resumed, resumed: !!resumed, don
  *   'open'    the evidence is shown on every step, with a "Hide the evidence" button
  * The group is kept in this browser only and is sent with the Guided events above.
  * ?ev=hidden or ?ev=open forces a layout for one page load (testing and the demo videos).
- * To end the test, make EVIDENCE_VARIANT the winning value. */
+ * EVIDENCE_HIDDEN_SHARE sets the split for browsers not yet in a group: 0.5 puts half in
+ * each, 0.7 puts 70% in 'hidden', 1 puts everyone new in 'hidden'. Browsers already in a
+ * group stay there. To end the test, make EVIDENCE_VARIANT the winning value. */
+const EVIDENCE_HIDDEN_SHARE = 0.5;
 const EVIDENCE_AB_KEY = 'mawarith:abEvidence';
 const EVIDENCE_PREF_KEY = 'mawarith:evidencePref';
 let EVIDENCE_FORCED = false;
@@ -4181,10 +4194,11 @@ const EVIDENCE_VARIANT = (() => {
     const q = new URLSearchParams(window.location.search).get('ev');
     if (q === 'hidden' || q === 'open') { EVIDENCE_FORCED = true; return q; }
     let v = window.localStorage.getItem(EVIDENCE_AB_KEY);
-    if (v !== 'hidden' && v !== 'open') { v = Math.random() < 0.5 ? 'hidden' : 'open'; window.localStorage.setItem(EVIDENCE_AB_KEY, v); }
+    if (v !== 'hidden' && v !== 'open') { v = Math.random() < EVIDENCE_HIDDEN_SHARE ? 'hidden' : 'open'; window.localStorage.setItem(EVIDENCE_AB_KEY, v); }
     return v;
   } catch (e) { return 'hidden'; }
 })();
+const EVIDENCE_TAG = 'evidence-' + EVIDENCE_VARIANT;
 /* The reader's own last choice wins over the group's starting layout. */
 const evidenceStartsOpen = () => {
   if (!EVIDENCE_FORCED) {
@@ -4317,10 +4331,16 @@ function App() {
     if (mode === 'guided' ? name === 'intro' : name === 'setup') return;
     // "View full results" in Guided lands on the results screen the two modes share.
     const flow = name === 'results' && prev.mode === 'guided' ? 'guided' : mode;
-    const base = flow === 'guided' ? { mode: flow, evidenceLayout: EVIDENCE_VARIANT } : { mode: flow };
-    if (!r.started) { r.started = true; track('calc-start', base); }
+    const tag = flow === 'guided' ? EVIDENCE_TAG : undefined;
+    const base = flow === 'guided' ? { evidenceLayout: EVIDENCE_VARIANT } : {};
+    const send = (what, data) => track(flow + '-' + what, data, tag);
+    if (!r.started) { r.started = true; send('start', base); }
     if (name !== 'results') {
-      if (!r.seen[flow + ':' + name]) { r.seen[flow + ':' + name] = true; track('calc-step', { ...base, step: name }); }
+      if (!r.seen[flow + ':' + name]) {
+        r.seen[flow + ':' + name] = true;
+        send('step', { ...base, step: name });
+        if (flow === 'guided' ? (name === 'estate' || name === 'review') : name === 'bequest') send(name, base); // funnel milestones
+      }
       return;
     }
     if (r.done) return;
@@ -4328,9 +4348,10 @@ function App() {
     const d = { ...base, resumed: r.resumed, switched: r.switched };
     if (flow === 'guided') d.evidenceUse = r.evidence;
     if (!r.resumed) { const secs = Math.round(activeSeconds() - r.t0); d.seconds = secs; d.time = timeBand(secs); }
-    track('calc-results', d);
+    send('results', d);
+    track('calc-results', { ...d, mode: flow }, tag);
   }, [mode, step, wizardId]);
-  const onEvidence = (open, stepId) => { run.current.evidence = open ? 'opened' : 'closed'; track(open ? 'evidence-show' : 'evidence-hide', { step: stepId, evidenceLayout: EVIDENCE_VARIANT }); };
+  const onEvidence = (open, stepId) => { run.current.evidence = open ? 'opened' : 'closed'; track(open ? 'evidence-show' : 'evidence-hide', { step: stepId, evidenceLayout: EVIDENCE_VARIANT }, EVIDENCE_TAG); };
   const switchMode = to => { if (mode !== to) { run.current.switched = true; track('mode-switch', { to }); } setMode(to); };
   // School-specific rulings the user can switch on where the schools differ (see calcSunni).
   const [rules, setRules] = useState(() => {

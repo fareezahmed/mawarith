@@ -371,7 +371,7 @@ var EXPERTS = [
     try {
       var r = await fetch(SCHOLAR_FORM_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
       var j = await r.json().catch(function () { return {}; });
-      if (r.ok && j.ok) { form.style.display = 'none'; document.getElementById('thanks').style.display = 'block'; }
+      if (r.ok && j.ok) { form.style.display = 'none'; document.getElementById('thanks').style.display = 'block'; try { window.umami && window.umami.track('scholar-request-sent'); } catch (e2) { /* anonymous count only; nothing from the form is included */ } }
       else { err.textContent = (j && j.error) || 'Something went wrong. Please try again.'; err.style.display = 'block'; submitBtn.disabled = false; submitBtn.textContent = 'Request your session →'; }
     } catch (ex) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; submitBtn.disabled = false; submitBtn.textContent = 'Request your session →'; }
   });
